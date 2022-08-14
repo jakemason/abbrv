@@ -1,0 +1,7 @@
+*.sw*
+logs/*
+obj/
+*.exe
+Session.vim
+bin/*.exe
+tags

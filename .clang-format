@@ -1,0 +1,35 @@
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+Language                                  : Cpp
+BasedOnStyle                              : Google 
+Standard                                  : c++14
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+AccessModifierOffset                      : -2
+AlignTrailingComments                     : true
+AlignConsecutiveAssignments               : true
+AlignConsecutiveMacros                    : true
+AlignEscapedNewlines                      : Right
+AllowAllParametersOfDeclarationOnNextLine : false
+AllowShortBlocksOnASingleLine             : true
+AllowShortFunctionsOnASingleLine          : true
+AllowShortIfStatementsOnASingleLine       : true
+AllowShortLoopsOnASingleLine              : false
+BinPackParameters                         : false
+BreakBeforeBraces                         : Allman
+BreakBeforeTernaryOperators               : false
+BreakConstructorInitializersBeforeComma   : true
+ColumnLimit                               : 120 
+Cpp11BracedListStyle                      : true
+DerivePointerAlignment                    : true
+DerivePointerBinding                      : false
+IndentCaseLabels                          : true
+IndentWidth                               : 2
+KeepEmptyLinesAtTheStartOfBlocks          : true
+MaxEmptyLinesToKeep                       : 2
+NamespaceIndentation                      : All 
+PointerBindsToType                        : true
+SpacesBeforeTrailingComments              : 1
+SpacesInAngles                            : false
+SpacesInSquareBrackets                    : false
+TabWidth                                  : 4
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
