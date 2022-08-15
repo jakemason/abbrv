@@ -1,6 +1,8 @@
 # Per-machine preferences and configuration
 override.config
 
+notes.txt
+
 # Don't save any OS junk or compiled results
 *.sw*
 *.input

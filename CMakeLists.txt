@@ -14,12 +14,20 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ./bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ./bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ./bin)
 
-include_directories(./include ./include/GL ./src/headers)
+include_directories(
+  ./include 
+  ./include/GL
+  ./src/headers
+  ./include/SDL2
+  ./src/headers/External
+)
 link_directories(./lib ./bin)
 
 # Disable certain compiler warnings, take care here!
 # Also, enable parallel builds for faster compile times
 add_compile_options(/wd4244 /wd4996 /MP)
+
+find_library(SDL2_LIBRARY REQUIRED NAMES SDL2 HINTS ./lib)
 
 add_definitions(-DDebugMode)
 
@@ -71,4 +79,4 @@ add_executable(displace ${SOURCES} ./src/displace.rc)
 # TODO: 
 # WIN32 flag here disables the console which we want, but not before we've
 # added an in-editor console via IMGUI
-target_link_libraries(displace glew32 opengl32)
+target_link_libraries(displace glew32 opengl32 SDL2main SDL2 SDL2_image SDL2_ttf ${SDL2} )
