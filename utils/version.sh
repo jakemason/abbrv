@@ -4,7 +4,7 @@
 # the src directory as needed. Only targets *.hpp and *.cpp files currently.
 
 text="/**
- * Displace Source Code
+ * abbrv Source Code
  * Copyright (C) 2020 Jake Mason
  *
  * @version VER_NUMBER

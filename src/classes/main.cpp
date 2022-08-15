@@ -1,5 +1,5 @@
 /**
- * Displace Source Code
+ * abbrv Source Code
  * Copyright (C) 2022 Jake Mason
  *
  * @version 0.01
@@ -29,7 +29,7 @@ int main(int argc, char* args[])
   int screenWidth    = 800;
   int screenHeight   = 500;
   int fullscreen     = 0;
-  platform->init("Displace", 50, 50, screenWidth, screenHeight, fullscreen);
+  platform->init("abbrv", 50, 50, screenWidth, screenHeight, fullscreen);
   platform->registerKeyboardHook();
   DEBUG("Platform initialization complete.");
   int countFrequency = SDL_GetPerformanceFrequency();
@@ -217,7 +217,7 @@ int main(int argc, char* args[])
 
       if (ImGui::BeginMainMenuBar())
       {
-        if (ImGui::BeginMenu("Displace")) { ImGui::Text("Test"); }
+        if (ImGui::BeginMenu("abbrv")) { ImGui::Text("Test"); }
       }
 
       ImGui::EndMainMenuBar();

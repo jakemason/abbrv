@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12)
-project(displace)
+project(abbrv)
 
 macro(RemoveCXXFlag flag)
     string(REPLACE "${flag}" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
@@ -69,14 +69,14 @@ endif()
 file(GLOB_RECURSE SOURCES "./src/*.cpp")
 
 # NOTE: On Windows Icons -- 
-# The "displace.rc" file is a convention needed to add an icon and other
+# The "abbrv.rc" file is a convention needed to add an icon and other
 # built-into-the-binary data on Windows. Setting the icon through
 # SDL_SetWindowIcon is NOT good enough! That only sets the taskbar icon, but
 # not _most_ of the other sizes. Thus, we use them both. The .png used by SDL
 # is crisper, but the .ico file meets the other sizing / placement
 # requirements.
-add_executable(displace ${SOURCES} ./src/displace.rc)
+add_executable(abbrv ${SOURCES} ./src/abbrv.rc)
 # TODO: 
 # WIN32 flag here disables the console which we want, but not before we've
 # added an in-editor console via IMGUI
-target_link_libraries(displace glew32 opengl32 SDL2main SDL2 SDL2_image SDL2_ttf ${SDL2} )
+target_link_libraries(abbrv glew32 opengl32 SDL2main SDL2 SDL2_image SDL2_ttf ${SDL2} )
