@@ -29,10 +29,16 @@ public:
 
   void init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen);
   void registerKeyboardHook();
+  void init();
+  void io(float deltaTime, Input* input);
+  void frameStart(Input* input);
+  void frameEnd();
+
 
   static int isShiftActive();
   static int isCapsLockActive();
   static void onKeyPress(char pressed);
+  static void simulateKeyboardInput(int backspaceCount, std::string toSend);
   void handleOSEvents(Input* input);
   void initRenderer();
   void clean();
