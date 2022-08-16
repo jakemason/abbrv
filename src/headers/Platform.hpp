@@ -39,15 +39,15 @@ public:
   void initRenderer();
   void clean();
 
+
+  // varies from platform to platform
   static int isShiftActive();
   static int isCapsLockActive();
   static void registerKeyboardHook();
   static void onKeyPress(char pressed);
   static void simulateKeyboardInput(int abbreviationLength, std::string toSend);
 
-
   std::string version = "1.0";
-
 
   SDL_Window* window;
   SDL_GLContext context;

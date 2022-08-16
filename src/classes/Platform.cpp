@@ -18,16 +18,20 @@
 
 #include <fstream>
 #include <vector>
-#if WINDOWS_BUILD
-#include <windows.h>
-#endif
+
 #include "Debug.hpp"
+#include "Editor.hpp"
 #include "Icons.hpp"
 #include "Input.hpp"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl.h"
 
+
+#if WINDOWS_BUILD
+#include "Platform_Windows.hpp"
 HHOOK Platform::keylistener = NULL;
+#endif
+
 
 Platform::Platform() {}
 Platform::~Platform() {}
@@ -75,31 +79,16 @@ void Platform::init()
   icons_config.PixelSnapH = true;
   io.Fonts->AddFontFromFileTTF("../assets/fonts/fontawesome.ttf", (int)(17.0f * dpiScalar), &icons_config,
                                icons_ranges);
-
-  /*
-  io.Fonts->AddFontDefault();
-  */
   io.Fonts->Build();
-
-  /* enable docking in IMGUI. This is _not_ available in the main master */
-  /* branch, but rather in the "docking" branch which is, at the time of */
-  /* writing, 930 commits ahead of master.*/
-  // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
-  //  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
 
   // set theme styles
   ImGui::StyleColorsDark();
 
+  Editor::setEditorStyles();
+
 #if OPENGL_RENDERER
   bool err = glewInit() != GLEW_OK;
   if (err) { ERR("Failed to init OpenGL loader!"); }
-
-  // NOTE This changed when we updated to IMGUI 1.85. Previously,
-  // we _had_ to call ImGui_ImplOpenGL3_Shutdown() first to keep hot
-  // reloading working, but now that _seems_ unnecessary? We'll see.
-  // If we try to call these more than once we now throw an assert that
-  // didn't exist in 1.84!
-  // ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplSDL2_InitForOpenGL(window, context);
   ImGui_ImplOpenGL3_Init("#version 150");
 #endif
@@ -192,11 +181,6 @@ void Platform::frameStart(Input* input)
     }
 
     ImGui::NewFrame();
-
-
-    // ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-    //  ImGui::ShowDemoWindow();
-    //  ImGui::ShowMetricsWindow();
   }
 }
 void Platform::frameEnd()
@@ -204,11 +188,6 @@ void Platform::frameEnd()
 #if OPENGL_RENDERER
   ImGui::Render();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-  // Update and Render additional Platform Windows
-  // (Platform functions may change the current OpenGL context, so we save/restore it to make it
-  // easier to paste this code elsewhere.
-  //  For this specific demo app we could also call SDL_GL_MakeCurrent(window, gl_context)
-  //  directly)
   ImGuiIO& io = ImGui::GetIO();
   if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
   {
@@ -216,112 +195,6 @@ void Platform::frameEnd()
     ImGui::RenderPlatformWindowsDefault();
     SDL_GL_MakeCurrent(window, context);
   }
-#endif
-}
-
-int Platform::isShiftActive() { return GetKeyState(VK_LSHIFT) < 0 || GetKeyState(VK_RSHIFT) < 0; }
-
-int Platform::isCapsLockActive() { return (GetKeyState(VK_CAPITAL) & 1) == 1; }
-
-void Platform::onKeyPress(char pressed)
-{
-  const int BACKSPACE_PRESSED = 8;   // TODO: Use this to "back up" the Tries?
-  const int MODIFIER_PRESSED  = -52; // both alt and ctrl return -52 and we don't want to consider
-                                     // these "breaks" in the matching chain so don't report them
-  if ((int)pressed == MODIFIER_PRESSED) return;
-
-  // TODO: Need to unhook then rehook when we are successful
-  if (pressed == 't')
-  {
-    UnhookWindowsHookEx(keylistener);
-    simulateKeyboardInput(1, "Yes, this works!");
-    registerKeyboardHook();
-  }
-
-  DEBUG("input received. char: %c, value of %d", pressed, (int)pressed);
-}
-
-#if WINDOWS_BUILD
-// The function that implements the key logging functionality
-LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
-{
-  // We do this on KEYUP so we can insert our expansion _after_ the abbreviation
-  // is completed. This also makes it much easier to issue the required count
-  // of backspaces.
-  if (wParam == WM_KEYUP)
-  {
-    KBDLLHOOKSTRUCT* kbdStruct = (KBDLLHOOKSTRUCT*)lParam;
-    DWORD wVirtKey             = kbdStruct->vkCode;
-    DWORD wScanCode            = kbdStruct->scanCode;
-
-    BYTE lpKeyState[256];
-    GetKeyboardState(lpKeyState);
-    lpKeyState[VK_SHIFT]   = 0;
-    lpKeyState[VK_CAPITAL] = 0;
-    if (Platform::isShiftActive()) { lpKeyState[VK_SHIFT] = 0x80; }
-    if (Platform::isCapsLockActive()) { lpKeyState[VK_CAPITAL] = 0x01; }
-
-    char result;
-    ToAscii(wVirtKey, wScanCode, lpKeyState, (LPWORD)&result, 0);
-    Platform::onKeyPress(result);
-  }
-
-  return CallNextHookEx(NULL, nCode, wParam, lParam);
-}
-#endif
-
-void Platform::simulateKeyboardInput(int abbreviationLength, std::string toSend)
-{
-#if WINDOWS_BUILD
-  HKL kbl = GetKeyboardLayout(0);
-
-  // the final backspace happens at the end!
-  for (int i = 0; i < abbreviationLength; i++)
-  {
-    INPUT input  = {};
-    input.type   = INPUT_KEYBOARD;
-    input.ki.wVk = VK_BACK;
-    SendInput(1, &input, sizeof(INPUT));
-  }
-
-  for (int i = 0; i < toSend.size(); i++)
-  {
-    INPUT input        = {};
-    input.type         = INPUT_KEYBOARD;
-    SHORT vk           = VkKeyScanEx(toSend[i], kbl);
-    bool shiftModifier = vk & 0x100;
-    if (shiftModifier) // if shift was held
-    {
-      INPUT shift  = {};
-      shift.type   = INPUT_KEYBOARD;
-      shift.ki.wVk = VK_LSHIFT;
-      SendInput(1, &shift, sizeof(INPUT));
-    }
-
-
-    input.ki.wVk = vk & 0xFF;
-    SendInput(1, &input, sizeof(INPUT));
-
-
-    if (shiftModifier) // release shift if we sent it earlier
-    {
-      INPUT shift      = {};
-      shift.type       = INPUT_KEYBOARD;
-      shift.ki.wVk     = VK_LSHIFT;
-      shift.ki.dwFlags = KEYEVENTF_KEYUP;
-      SendInput(1, &shift, sizeof(INPUT));
-    }
-  }
-#endif
-}
-
-void Platform::registerKeyboardHook()
-{
-#if WINDOWS_BUILD
-  // Retrieve the applications instance
-  HINSTANCE instance = GetModuleHandle(NULL);
-  // Set a global Windows Hook to capture keystrokes using the function declared above
-  keylistener = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, instance, 0);
 #endif
 }
 
@@ -354,8 +227,8 @@ void Platform::init(const char* title, int xpos, int ypos, int width, int height
   // NOTE
   // This is NOT good enough by itself. An ".ico" file is required as well
   // and baked directly into the program itself through CMake. See
-  // "platform/CMakeLists.txt" for more information, as well as the
-  // associated "athena.rc" file.
+  // "CMakeLists.txt" for more information, as well as the
+  // associated "abbrv.rc" file.
   SDL_Surface* icon = IMG_Load("../assets/app_icon.png");
   SDL_SetWindowIcon(window, icon);
 
@@ -378,10 +251,6 @@ void Platform::init(const char* title, int xpos, int ypos, int width, int height
 
 #if DEBUG_MODE
   fullTitle += " | Debugging Enabled";
-#endif
-
-#if EDITOR_MODE
-  fullTitle += " | Editor Enabled";
 #endif
 
   if (window) { DEBUG("Window created successfully."); }
