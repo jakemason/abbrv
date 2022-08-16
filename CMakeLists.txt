@@ -75,8 +75,10 @@ file(GLOB_RECURSE SOURCES "./src/*.cpp")
 # not _most_ of the other sizes. Thus, we use them both. The .png used by SDL
 # is crisper, but the .ico file meets the other sizing / placement
 # requirements.
-add_executable(abbrv ${SOURCES} ./src/abbrv.rc)
+#
 # TODO: 
 # WIN32 flag here disables the console which we want, but not before we've
 # added an in-editor console via IMGUI
+add_executable(abbrv WIN32 ${SOURCES} ./src/abbrv.rc)
+
 target_link_libraries(abbrv glew32 opengl32 SDL2main SDL2 SDL2_image SDL2_ttf ${SDL2} )

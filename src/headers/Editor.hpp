@@ -109,6 +109,14 @@ public:
 
       ImVec2 button_size(ImGui::GetFontSize() * 2.0f, ImGui::GetFontSize() * 2.0f);
       if (ImGui::Button(ICON_FA_PLUS, button_size)) { data->entries.push_back({}); }
+
+#if DEBUG_MODE
+      ImGui::PopStyleColor();
+      ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.5f, 0.0f, 0.5f));
+      ImGui::Separator();
+      static char arr[255];
+      ImGui::InputText("Testing Area", arr, 255);
+#endif
     }
 
     ImGui::End();

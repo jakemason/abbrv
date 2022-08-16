@@ -7,7 +7,6 @@
  * @date 08-13-2022
  *
  **/
-
 #define GL3_PROTOTYPES 1
 #include "Platform.hpp"
 
@@ -29,6 +28,7 @@
 
 #if WINDOWS_BUILD
 #include "Platform_Windows.hpp"
+#include "SDL_syswm.h"
 HHOOK Platform::keylistener = NULL;
 #endif
 
@@ -149,12 +149,12 @@ void Platform::io(float deltaTime, Input* input)
   io.MouseDown[1] = buttons & SDL_BUTTON(SDL_BUTTON_RIGHT);
   io.MouseWheel   = static_cast<float>(-input->mouseScroll);
 }
+
 void Platform::frameStart(Input* input)
 {
   { // frame start
     int screenWidth, screenHeight;
     SDL_GetWindowSize(window, &screenWidth, &screenHeight);
-
 
     ImGuiViewport* viewport = ImGui::FindViewportByPlatformHandle((void*)SDL_GetWindowFromID(input->windowID));
     // NOTE: Viewport Validity
@@ -224,6 +224,26 @@ void Platform::init(const char* title, int xpos, int ypos, int width, int height
 
   window = SDL_CreateWindow(title, xpos, ypos, width, height,
                             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+
+#if WINDOWS_BUILD
+  SDL_SysWMinfo info;
+  SDL_VERSION(&info.version);
+
+  NOTIFYICONDATA iconData;
+  if (SDL_GetWindowWMInfo(window, &info))
+  {
+    iconData.uCallbackMessage = WM_USER + 1;
+    iconData.uFlags           = NIF_ICON | NIF_TIP | NIF_MESSAGE;
+    // iconData.hIcon            = LoadIcon(NULL, IDI_INFORMATION);
+    int iconConst   = 102; // NOTE: defined in "abbrv.rc"
+    iconData.hIcon  = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(iconConst));
+    iconData.cbSize = sizeof(iconData);
+    iconData.hWnd   = info.info.win.window;
+    strcpy_s(iconData.szTip, "abbrv");
+
+    bool success = Shell_NotifyIcon(NIM_ADD, &iconData);
+  }
+#endif
   // NOTE
   // This is NOT good enough by itself. An ".ico" file is required as well
   // and baked directly into the program itself through CMake. See
@@ -298,6 +318,7 @@ void Platform::initRenderer()
 
 void Platform::handleOSEvents(Input* input)
 {
+  SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
   memset(input->isKeyPressed, 0, sizeof(input->isKeyPressed));
   input->mouseScroll      = 0;
   input->leftClicked      = false;
@@ -313,6 +334,27 @@ void Platform::handleOSEvents(Input* input)
   {
     switch (event.type)
     {
+#if WINDOWS_BUILD
+      case SDL_SYSWMEVENT:
+      {
+        if (event.syswm.msg->msg.win.msg == WM_USER + 1)
+        {
+          if (LOWORD(event.syswm.msg->msg.win.lParam) == WM_LBUTTONDBLCLK)
+          {
+            int flags = SDL_GetWindowFlags(window);
+            DEBUG("HAS MIN FLAG? %d", flags & SDL_WINDOW_MINIMIZED);
+            DEBUG("HAS MAX FLAG? %d", flags & SDL_WINDOW_MAXIMIZED);
+            SDL_ShowWindow(window);
+            SDL_RaiseWindow(window);
+            //  TODO: BUG MAD SO MAD
+            //   Why the hell does this only restore correctly if we maximize the window?
+            //   SDL_MaximizeWindow(window);
+          }
+        }
+        break;
+      }
+#endif
+
       case SDL_MOUSEMOTION:
       {
         input->mouseX          = event.motion.x;
@@ -407,9 +449,14 @@ void Platform::handleOSEvents(Input* input)
           }
         }
       }
+
+
       case SDL_WINDOWEVENT:
       {
+#if WINDOWS_BUILD
         input->windowID = event.window.windowID;
+        if (event.window.event == SDL_WINDOWEVENT_MINIMIZED) { SDL_HideWindow(window); }
+#endif
         case SDL_WINDOWEVENT_RESIZED:
         {
           input->windowResized = true;
