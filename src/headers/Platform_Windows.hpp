@@ -89,7 +89,9 @@ void Platform::simulateKeyboardInput(int abbreviationLength, std::string toSend)
 
     input.ki.wVk = vk & 0xFF;
     SendInput(1, &input, sizeof(INPUT));
-
+    // NOTE: You NEED to send a key up after the keydown otherwise Windows eats characters oddly
+    input.ki.dwFlags = KEYEVENTF_KEYUP;
+    SendInput(1, &input, sizeof(INPUT));
 
     if (shiftModifier) // release shift if we sent it earlier
     {
