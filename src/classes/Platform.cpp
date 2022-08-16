@@ -27,6 +27,8 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl.h"
 
+HHOOK Platform::keylistener = NULL;
+
 Platform::Platform() {}
 Platform::~Platform() {}
 
@@ -229,7 +231,12 @@ void Platform::onKeyPress(char pressed)
   if ((int)pressed == MODIFIER_PRESSED) return;
 
   // TODO: Need to unhook then rehook when we are successful
-  // if (pressed == 't') { simulateKeyboardInput(1, "Yes, this works!"); }
+  if (pressed == 't')
+  {
+    UnhookWindowsHookEx(keylistener);
+    simulateKeyboardInput(1, "Yes, this works!");
+    registerKeyboardHook();
+  }
 
   DEBUG("input received. char: %c, value of %d", pressed, (int)pressed);
 }
@@ -238,8 +245,10 @@ void Platform::onKeyPress(char pressed)
 // The function that implements the key logging functionality
 LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-
-  if (wParam == WM_KEYDOWN)
+  // We do this on KEYUP so we can insert our expansion _after_ the abbreviation
+  // is completed. This also makes it much easier to issue the required count
+  // of backspaces.
+  if (wParam == WM_KEYUP)
   {
     KBDLLHOOKSTRUCT* kbdStruct = (KBDLLHOOKSTRUCT*)lParam;
     DWORD wVirtKey             = kbdStruct->vkCode;
@@ -261,13 +270,13 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 }
 #endif
 
-
-void Platform::simulateKeyboardInput(int backspaceCount, std::string toSend)
+void Platform::simulateKeyboardInput(int abbreviationLength, std::string toSend)
 {
 #if WINDOWS_BUILD
   HKL kbl = GetKeyboardLayout(0);
 
-  for (int i = 0; i < backspaceCount; i++)
+  // the final backspace happens at the end!
+  for (int i = 0; i < abbreviationLength; i++)
   {
     INPUT input  = {};
     input.type   = INPUT_KEYBOARD;
@@ -277,15 +286,34 @@ void Platform::simulateKeyboardInput(int backspaceCount, std::string toSend)
 
   for (int i = 0; i < toSend.size(); i++)
   {
-    INPUT input  = {};
-    input.type   = INPUT_KEYBOARD;
-    input.ki.wVk = VkKeyScanEx(toSend[i], kbl);
-    SendInput(1, &input, sizeof(INPUT));
-  }
+    INPUT input        = {};
+    input.type         = INPUT_KEYBOARD;
+    SHORT vk           = VkKeyScanEx(toSend[i], kbl);
+    bool shiftModifier = vk & 0x100;
+    if (shiftModifier) // if shift was held
+    {
+      INPUT shift  = {};
+      shift.type   = INPUT_KEYBOARD;
+      shift.ki.wVk = VK_LSHIFT;
+      SendInput(1, &shift, sizeof(INPUT));
+    }
 
+
+    input.ki.wVk = vk & 0xFF;
+    SendInput(1, &input, sizeof(INPUT));
+
+
+    if (shiftModifier) // release shift if we sent it earlier
+    {
+      INPUT shift      = {};
+      shift.type       = INPUT_KEYBOARD;
+      shift.ki.wVk     = VK_LSHIFT;
+      shift.ki.dwFlags = KEYEVENTF_KEYUP;
+      SendInput(1, &shift, sizeof(INPUT));
+    }
+  }
 #endif
 }
-
 
 void Platform::registerKeyboardHook()
 {
@@ -293,7 +321,7 @@ void Platform::registerKeyboardHook()
   // Retrieve the applications instance
   HINSTANCE instance = GetModuleHandle(NULL);
   // Set a global Windows Hook to capture keystrokes using the function declared above
-  HHOOK keylistener = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, instance, 0);
+  keylistener = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, instance, 0);
 #endif
 }
 

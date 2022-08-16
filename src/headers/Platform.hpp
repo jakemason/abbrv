@@ -15,6 +15,9 @@
 
 #include <string>
 
+#if WINDOWS_BUILD
+#include <windows.h>
+#endif
 
 struct SDL_Window;
 struct SDL_Renderer;
@@ -28,20 +31,20 @@ public:
   ~Platform();
 
   void init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen);
-  void registerKeyboardHook();
   void init();
   void io(float deltaTime, Input* input);
   void frameStart(Input* input);
   void frameEnd();
-
-
-  static int isShiftActive();
-  static int isCapsLockActive();
-  static void onKeyPress(char pressed);
-  static void simulateKeyboardInput(int backspaceCount, std::string toSend);
   void handleOSEvents(Input* input);
   void initRenderer();
   void clean();
+
+  static int isShiftActive();
+  static int isCapsLockActive();
+  static void registerKeyboardHook();
+  static void onKeyPress(char pressed);
+  static void simulateKeyboardInput(int abbreviationLength, std::string toSend);
+
 
   std::string version = "1.0";
 
@@ -52,6 +55,9 @@ public:
 
 
   bool isRunning;
+#if WINDOWS_BUILD
+  static HHOOK keylistener;
+#endif
 };
 
 #endif
