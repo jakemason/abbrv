@@ -19,11 +19,9 @@ int main(int argc, char* args[])
 {
   Input* input       = new Input();
   Platform* platform = new Platform();
-  AppData* data      = new AppData();
-  data->init();
-  int screenWidth  = 800;
-  int screenHeight = 500;
-  int fullscreen   = 0;
+  int screenWidth    = 800;
+  int screenHeight   = 500;
+  int fullscreen     = 0;
   platform->init("abbrv", 50, 50, screenWidth, screenHeight, fullscreen);
   platform->registerKeyboardHook();
   int countFrequency = SDL_GetPerformanceFrequency();
@@ -40,7 +38,7 @@ int main(int argc, char* args[])
     platform->io(deltaTime, input);
     platform->frameStart(input);
 
-    Editor::render(platform, input, data);
+    Editor::render(platform, input, platform->data);
 
     platform->frameEnd();
 

@@ -15,6 +15,8 @@
 
 #include <string>
 
+#include "Data.hpp"
+
 #if WINDOWS_BUILD
 #include <windows.h>
 #endif
@@ -39,7 +41,6 @@ public:
   void initRenderer();
   void clean();
 
-
   // varies from platform to platform
   static int isShiftActive();
   static int isCapsLockActive();
@@ -52,6 +53,8 @@ public:
   SDL_Window* window;
   SDL_GLContext context;
   SDL_Renderer* renderer;
+
+  static AppData* data;
 
 
   bool isRunning;

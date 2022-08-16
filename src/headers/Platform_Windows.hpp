@@ -14,9 +14,16 @@ void Platform::onKeyPress(char pressed)
                                      // these "breaks" in the matching chain so don't report them
   if ((int)pressed == MODIFIER_PRESSED) return;
 
+  DEBUG("Input received. char: %c, value of %d", pressed, (int)pressed);
   // TODO: Okay, so now we just do the Trie thing!
-
-  DEBUG("input received. char: %c, value of %d", pressed, (int)pressed);
+  data->advanceSearches(pressed);
+  Abbreviation* toSend = data->checkForCompletions();
+  if (toSend != nullptr)
+  {
+    DEBUG("Sending length of %d with string %s to keyboard!", strlen(toSend->abbreviation), toSend->expandsTo);
+    std::string s(toSend->expandsTo);
+    simulateKeyboardInput(strlen(toSend->abbreviation), s);
+  }
 }
 
 #if WINDOWS_BUILD
@@ -59,6 +66,9 @@ void Platform::simulateKeyboardInput(int abbreviationLength, std::string toSend)
     INPUT input  = {};
     input.type   = INPUT_KEYBOARD;
     input.ki.wVk = VK_BACK;
+    SendInput(1, &input, sizeof(INPUT));
+
+    input.ki.dwFlags = KEYEVENTF_KEYUP;
     SendInput(1, &input, sizeof(INPUT));
   }
 

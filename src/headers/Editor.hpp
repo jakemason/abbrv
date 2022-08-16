@@ -15,6 +15,10 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_internal.h"
 
+#if WIN32
+#include <tchar.h>
+#endif
+
 class Editor
 {
 public:
@@ -42,7 +46,30 @@ public:
 
     if (ImGui::BeginMainMenuBar())
     {
-      if (ImGui::BeginMenu("File")) { ImGui::EndMenu(); }
+      if (ImGui::BeginMenu("Config"))
+      {
+        if (ImGui::MenuItem("Open in Explorer"))
+        {
+#if WINDOWS_BUILD
+          PROCESS_INFORMATION ProcessInfo = {0};
+          STARTUPINFO StartupInfo         = {0};
+          std::string command             = "explorer.exe .";
+          char cmd[128];
+          strcpy(cmd, command.c_str());
+          CreateProcess(NULL, _T(cmd), NULL, NULL, FALSE, 0, NULL, NULL, &StartupInfo, &ProcessInfo);
+#endif
+        }
+        ImGui::EndMenu();
+      }
+
+      if (ImGui::BeginMenu("Help"))
+      {
+        std::string version = "abbrv v." + platform->version;
+        ImGui::Text(version.c_str());
+        ImGui::Separator();
+        ImGui::Text(ICON_FA_COPYRIGHT " 2022 Jake Mason. All rights reserved.");
+        ImGui::EndMenu();
+      }
       ImGui::EndMainMenuBar();
     }
 

@@ -18,6 +18,7 @@
 #include <fstream>
 #include <vector>
 
+#include "Data.hpp"
 #include "Debug.hpp"
 #include "Editor.hpp"
 #include "Icons.hpp"
@@ -32,12 +33,15 @@
 HHOOK Platform::keylistener = NULL;
 #endif
 
+AppData* Platform::data = nullptr;
 
 Platform::Platform() {}
 Platform::~Platform() {}
 
 void Platform::init()
 {
+  data = new AppData();
+  data->init();
   int screenWidth, screenHeight;
   SDL_GetWindowSize(window, &screenWidth, &screenHeight);
   SDL_CaptureMouse(SDL_TRUE);
@@ -313,7 +317,7 @@ void Platform::initRenderer()
 
   context = SDL_GL_CreateContext(window);
   SDL_GL_MakeCurrent(window, context);
-  SDL_GL_SetSwapInterval(0); // vsync;
+  SDL_GL_SetSwapInterval(1); // vsync;
 }
 
 void Platform::handleOSEvents(Input* input)

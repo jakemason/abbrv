@@ -5,6 +5,9 @@
 #define ABBREVIATION_MAX_SIZE 1024 - 1
 #define EXPAND_MAX_SIZE       4096 - 1
 
+// we allow all ASCII entries
+#define ALPHABET_SIZE 128
+
 #define SAVE_FILE_NAME "config.abbrv"
 
 #include <fstream>
@@ -14,16 +17,117 @@
 #include "Debug.hpp"
 #include "imgui.h"
 
-struct Abbreviations
+struct Abbreviation
 {
   char abbreviation[ABBREVIATION_MAX_SIZE];
   char expandsTo[EXPAND_MAX_SIZE];
 };
 
+struct TrieNode
+{
+  bool terminal;
+  Abbreviation *abbreviation;
+  TrieNode *children[ALPHABET_SIZE];
+
+  static void insert(TrieNode *root, std::string key, Abbreviation *abbreviation)
+  {
+    DEBUG("Inserting %s into Trie", key.c_str());
+    TrieNode *current = root;
+
+    for (int i = 0; i < key.length(); i++)
+    {
+      int index = key[i];
+      DEBUG("Looking for index %d", index);
+      if (!current->children[index]) { current->children[index] = getNode(); }
+
+      current = current->children[index];
+    }
+
+    current->terminal     = true;
+    current->abbreviation = abbreviation;
+  }
+
+  // Because  we're doing partial matching as the user types on the keyboard,
+  // we need to check if possible matches are still "alive" even if they're not
+  // at a terminal leaf yet.
+  static bool containsPartial(TrieNode *root, char key)
+  {
+    TrieNode *current = root;
+
+    int index = key;
+    if (!current->children[index]) { return false; }
+
+    return true;
+  }
+
+  static bool contains(TrieNode *root, std::string key)
+  {
+
+    TrieNode *current = root;
+
+    for (int i = 0; i < key.length(); i++)
+    {
+      int index = key[i];
+      if (!current->children[index]) { return false; }
+
+      current = current->children[index];
+    }
+
+    return current->terminal;
+  }
+
+  static TrieNode *getNode()
+  {
+    TrieNode *node     = new TrieNode();
+    node->terminal     = false;
+    node->abbreviation = nullptr;
+
+    for (int i = 0; i < ALPHABET_SIZE; i++)
+    {
+      node->children[i] = nullptr;
+    }
+
+    return node;
+  }
+};
+
+
 class AppData
 {
 public:
   void init() { readSaveFile(); }
+
+  Abbreviation *checkForCompletions()
+  {
+    DEBUG("LIVING NODES SIZE %d", livingNodes.size());
+    for (int i = livingNodes.size() - 1; i >= 0; i--)
+    {
+      if (livingNodes[i]->terminal)
+      {
+        Abbreviation *result = livingNodes[i]->abbreviation;
+        std::swap(livingNodes[i], livingNodes[livingNodes.size() - 1]);
+        livingNodes.pop_back();
+        return result;
+      }
+    }
+    return nullptr;
+  }
+
+  void advanceSearches(char c)
+  {
+    for (int i = livingNodes.size() - 1; i >= 0; i--)
+    {
+      if (TrieNode::containsPartial(livingNodes[i], c)) { livingNodes.push_back(livingNodes[i]->children[(int)c]); }
+      else
+      {
+        // TODO: If we DON'T continue here... we kill this living node? I think?
+        std::swap(livingNodes[i], livingNodes[livingNodes.size() - 1]);
+        livingNodes.pop_back();
+      }
+    }
+
+    if (TrieNode::containsPartial(root, c)) { livingNodes.push_back(root->children[(int)c]); }
+  }
 
   void deleteIndex(int index)
   {
@@ -47,11 +151,24 @@ public:
 
       if (abbreviation != "")
       {
-        Abbreviations toAdd;
+        Abbreviation toAdd;
         strcpy(toAdd.abbreviation, abbreviation.c_str());
         strcpy(toAdd.expandsTo, expandsTo.c_str());
         entries.push_back(toAdd);
       }
+    }
+
+    resetEntries();
+  }
+
+  void resetEntries()
+  {
+    livingNodes = {};
+    root        = nullptr;
+    root        = TrieNode::getNode();
+    for (int i = 0; i < entries.size(); i++)
+    {
+      TrieNode::insert(root, entries[i].abbreviation, &entries[i]);
     }
   }
 
@@ -70,9 +187,12 @@ public:
     }
 
     DEBUG("SAVED");
+    resetEntries();
   }
 
-  std::vector<Abbreviations> entries;
+  TrieNode *root;
+  std::vector<Abbreviation> entries;
+  std::vector<TrieNode *> livingNodes;
 };
 
 #endif

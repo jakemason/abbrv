@@ -79,6 +79,6 @@ file(GLOB_RECURSE SOURCES "./src/*.cpp")
 # TODO: 
 # WIN32 flag here disables the console which we want, but not before we've
 # added an in-editor console via IMGUI
-add_executable(abbrv WIN32 ${SOURCES} ./src/abbrv.rc)
+add_executable(abbrv ${SOURCES} ./src/abbrv.rc)
 
 target_link_libraries(abbrv glew32 opengl32 SDL2main SDL2 SDL2_image SDL2_ttf ${SDL2} )
