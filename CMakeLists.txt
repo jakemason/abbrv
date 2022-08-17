@@ -58,6 +58,12 @@ else()
     # with /O2 so they get stripped here.
     RemoveCXXFlag("/RTC1")
     RemoveCXXFlag("/Od")
+
+
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ./abbrv)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ./abbrv)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ./abbrv)
+
 endif()
 
 
@@ -76,4 +82,4 @@ file(GLOB_RECURSE SOURCES "./src/*.cpp")
 # added an in-editor console via IMGUI
 add_executable(abbrv WIN32 ${SOURCES} ./src/abbrv.rc)
 
-target_link_libraries(abbrv glew32 opengl32 SDL2main SDL2 SDL2_image SDL2_ttf ${SDL2} )
+target_link_libraries(abbrv glew32 opengl32 SDL2main SDL2 ${SDL2})

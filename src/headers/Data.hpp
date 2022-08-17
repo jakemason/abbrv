@@ -142,7 +142,12 @@ public:
   {
     std::ifstream file;
     file.open("./" SAVE_FILE_NAME);
-    if (!file) { ERR("Failed to open the config file %s", SAVE_FILE_NAME); }
+    if (!file)
+    {
+      ERR("Failed to open the config file %s", SAVE_FILE_NAME);
+      resetEntries();
+      return;
+    }
     std::string abbreviation;
     std::string expandsTo;
     bool isMultiline;

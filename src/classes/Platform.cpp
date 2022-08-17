@@ -13,7 +13,6 @@
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
 
 #include <fstream>
 #include <vector>
@@ -220,13 +219,6 @@ void Platform::init(const char* title, int xpos, int ypos, int width, int height
     return;
   }
 
-  if (TTF_Init() == -1)
-  {
-    ERR("SDL TTF failed to initialize. Error: %s", TTF_GetError());
-    isRunning = false;
-    return;
-  }
-
   window = SDL_CreateWindow(title, xpos, ypos, width, height,
                             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 #if WIN32
@@ -239,8 +231,8 @@ void Platform::init(const char* title, int xpos, int ypos, int width, int height
   // and baked directly into the program itself through CMake. See
   // "CMakeLists.txt" for more information, as well as the
   // associated "abbrv.rc" file.
-  SDL_Surface* icon = IMG_Load("../assets/app_icon.png");
-  SDL_SetWindowIcon(window, icon);
+  // SDL_Surface* icon = IMG_Load("../assets/app_icon.png");
+  // SDL_SetWindowIcon(window, icon);
 
   if (fullscreen) SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 
