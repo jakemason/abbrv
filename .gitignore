@@ -3,6 +3,9 @@ override.config
 
 notes.txt
 
+# Don't save the release build folder
+abbrv/
+
 # Don't save any OS junk or compiled results
 *.sw*
 *.input

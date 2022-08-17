@@ -1,5 +1,6 @@
 cd ../
 # Copy over our libraries to the final directory
+mkdir -p abbrv
 cp ./bin/zlib1.dll ./abbrv/.
 cp ./bin/SDL2.dll ./abbrv/.
 cp ./bin/glew32.dll ./abbrv/.

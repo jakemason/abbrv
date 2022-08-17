@@ -25,6 +25,9 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl.h"
 
+// font files we embed as binary
+#include "fontawesome.cpp"
+#include "roboto.cpp"
 
 #if WIN32
 #include "Platform_Windows.hpp"
@@ -74,15 +77,15 @@ void Platform::init()
   //
   // Additionally, the font we want loaded by "default" needs to be
   // loaded first.
-  io.Fonts->AddFontFromFileTTF("../assets/fonts/roboto.ttf", (int)(19 * dpiScalar));
+  io.Fonts->AddFontFromMemoryCompressedTTF(roboto_compressed_data, roboto_compressed_size, (int)(19 * dpiScalar));
 
   // merge in icons from Font Awesome
   static const ImWchar icons_ranges[] = {ICON_MIN_FA, ICON_MAX_FA, 0};
   ImFontConfig icons_config;
   icons_config.MergeMode  = true;
   icons_config.PixelSnapH = true;
-  io.Fonts->AddFontFromFileTTF("../assets/fonts/fontawesome.ttf", (int)(17.0f * dpiScalar), &icons_config,
-                               icons_ranges);
+  io.Fonts->AddFontFromMemoryCompressedTTF(fontawesome_compressed_data, fontawesome_compressed_size,
+                                           (int)(17.0f * dpiScalar), &icons_config, icons_ranges);
   io.Fonts->Build();
 
   // set theme styles
