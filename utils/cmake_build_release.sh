@@ -1,10 +1,7 @@
 cd ../
 # Copy over our libraries to the final directory
 cp ./bin/zlib1.dll ./abbrv/.
-cp ./bin/SDL2_ttf.dll ./abbrv/.
-cp ./bin/SDL2_image.dll ./abbrv/.
 cp ./bin/SDL2.dll ./abbrv/.
-cp ./bin/libfreetype-6.dll ./abbrv/.
 cp ./bin/glew32.dll ./abbrv/.
 
 
