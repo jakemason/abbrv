@@ -335,8 +335,11 @@ void Platform::handleOSEvents(Input* input)
             // I _need_ to do it manually with the window handle. :/
             SDL_SysWMinfo info;
             SDL_VERSION(&info.version);
-            if (SDL_GetWindowWMInfo(window, &info)) { ShowWindow(info.info.win.window, SW_SHOWNORMAL); }
-            SDL_RaiseWindow(window);
+            if (SDL_GetWindowWMInfo(window, &info))
+            {
+              ShowWindow(info.info.win.window, SW_SHOWDEFAULT);
+              SetForegroundWindow(info.info.win.window);
+            }
           }
         }
         else if (event.syswm.msg->msg.win.msg == WM_TASKBARCREATED)
@@ -448,7 +451,12 @@ void Platform::handleOSEvents(Input* input)
       {
 #if WIN32
         input->windowID = event.window.windowID;
-        if (event.window.event == SDL_WINDOWEVENT_MINIMIZED) { SDL_HideWindow(window); }
+        if (event.window.event == SDL_WINDOWEVENT_MINIMIZED)
+        {
+          SDL_SysWMinfo info;
+          SDL_VERSION(&info.version);
+          if (SDL_GetWindowWMInfo(window, &info)) { ShowWindow(info.info.win.window, SW_HIDE); }
+        }
 #endif
         case SDL_WINDOWEVENT_RESIZED:
         {
