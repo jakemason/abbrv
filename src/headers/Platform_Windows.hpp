@@ -2,6 +2,7 @@
 
 #include "Debug.hpp"
 #include "Platform.hpp"
+#include "SDL_syswm.h"
 
 int Platform::isShiftActive() { return GetKeyState(VK_LSHIFT) < 0 || GetKeyState(VK_RSHIFT) < 0; }
 
@@ -20,13 +21,46 @@ void Platform::onKeyPress(char pressed)
   Abbreviation* toSend = data->checkForCompletions();
   if (toSend != nullptr)
   {
-    DEBUG("Sending length of %d with string %s to keyboard!", strlen(toSend->abbreviation), toSend->expandsTo);
     std::string s(toSend->expandsTo);
     simulateKeyboardInput(strlen(toSend->abbreviation), s);
   }
 }
 
-#if WINDOWS_BUILD
+void Platform::addTrayIcon(SDL_Window* window)
+{
+  SDL_SysWMinfo info;
+  SDL_VERSION(&info.version);
+
+  NOTIFYICONDATA iconData;
+  if (SDL_GetWindowWMInfo(window, &info))
+  {
+    iconData.uCallbackMessage = WM_USER + 1;
+    iconData.uFlags           = NIF_ICON | NIF_TIP | NIF_MESSAGE;
+    // iconData.hIcon            = LoadIcon(NULL, IDI_INFORMATION);
+    int iconConst   = 102; // NOTE: defined in "abbrv.rc"
+    iconData.hIcon  = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(iconConst));
+    iconData.cbSize = sizeof(iconData);
+    iconData.hWnd   = info.info.win.window;
+    strcpy_s(iconData.szTip, "abbrv");
+
+    bool success = Shell_NotifyIcon(NIM_ADD, &iconData);
+  }
+}
+void Platform::removeTrayIcon(SDL_Window* window)
+{
+  SDL_SysWMinfo info;
+  SDL_VERSION(&info.version);
+
+  NOTIFYICONDATA iconData;
+  if (SDL_GetWindowWMInfo(window, &info))
+  {
+    iconData.cbSize = sizeof(iconData);
+    iconData.hWnd   = info.info.win.window;
+    bool success    = Shell_NotifyIcon(NIM_DELETE, &iconData);
+  }
+}
+
+
 // The function that implements the key logging functionality
 LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
@@ -53,11 +87,10 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 
   return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
-#endif
 
 void Platform::simulateKeyboardInput(int abbreviationLength, std::string toSend)
 {
-#if WINDOWS_BUILD
+#if WIN32
   HKL kbl = GetKeyboardLayout(0);
 
   // the final backspace happens at the end!
@@ -107,7 +140,7 @@ void Platform::simulateKeyboardInput(int abbreviationLength, std::string toSend)
 
 void Platform::registerKeyboardHook()
 {
-#if WINDOWS_BUILD
+#if WIN32
   // Retrieve the applications instance
   HINSTANCE instance = GetModuleHandle(NULL);
   // Set a global Windows Hook to capture keystrokes using the function declared above

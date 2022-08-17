@@ -17,7 +17,7 @@
 
 #include <string>
 
-#if WINDOWS_BUILD
+#if WIN32
 #include <windows.h>
 #endif
 

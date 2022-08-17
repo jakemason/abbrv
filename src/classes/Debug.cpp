@@ -13,13 +13,13 @@
 #include <ctime>
 #include <string>
 
-#if WINDOWS_BUILD
+#if WIN32
 #include <windows.h>
 #endif
 
 #ifndef DEBUG_COLORS
 
-#if WINDOWS_BUILD
+#if WIN32
 #define RED    4
 #define YELLOW 14
 #define RESET  15
@@ -88,7 +88,7 @@ void Debug::log(const char* file, int line, std::string format, ...)
 
 void Debug::warn(const char* file, int line, std::string format, ...)
 {
-#if WINDOWS_BUILD
+#if WIN32
   HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
   SetConsoleTextAttribute(console, YELLOW);
   printf("[WARN]: ");
@@ -103,7 +103,7 @@ void Debug::warn(const char* file, int line, std::string format, ...)
 
 void Debug::error(const char* file, int line, std::string format, ...)
 {
-#if WINDOWS_BUILD
+#if WIN32
   HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
   SetConsoleTextAttribute(console, RED);
   printf("[ERROR]: ");

@@ -10,6 +10,8 @@
 
 #define SAVE_FILE_NAME "config.abbrv"
 
+#define DELIMITER '\x1f'
+
 #include <fstream>
 #include <string>
 #include <vector>
@@ -21,6 +23,7 @@ struct Abbreviation
 {
   char abbreviation[ABBREVIATION_MAX_SIZE];
   char expandsTo[EXPAND_MAX_SIZE];
+  bool isMultiline;
 };
 
 struct TrieNode
@@ -100,7 +103,7 @@ public:
   Abbreviation *checkForCompletions()
   {
     DEBUG("LIVING NODES SIZE %d", livingNodes.size());
-    for (int i = livingNodes.size() - 1; i >= 0; i--)
+    for (int i = (int)livingNodes.size() - 1; i >= 0; i--)
     {
       if (livingNodes[i]->terminal)
       {
@@ -115,7 +118,7 @@ public:
 
   void advanceSearches(char c)
   {
-    for (int i = livingNodes.size() - 1; i >= 0; i--)
+    for (int i = (int)livingNodes.size() - 1; i >= 0; i--)
     {
       if (TrieNode::containsPartial(livingNodes[i], c)) { livingNodes.push_back(livingNodes[i]->children[(int)c]); }
       else
@@ -142,16 +145,18 @@ public:
     if (!file) { ERR("Failed to open the config file %s", SAVE_FILE_NAME); }
     std::string abbreviation;
     std::string expandsTo;
+    bool isMultiline;
     while (!file.eof())
     {
-      std::getline(file, abbreviation, ':');
+      file >> isMultiline;
+      // file >> std::ws -- removes any whitespace from the line before processing
+      std::getline(file >> std::ws, abbreviation, DELIMITER);
       DEBUG("Abbreviation: [%s]", abbreviation.c_str());
-      std::getline(file, expandsTo, '\n');
-      DEBUG("Expands To: [%s]", expandsTo.c_str());
-
+      std::getline(file, expandsTo, DELIMITER);
       if (abbreviation != "")
       {
         Abbreviation toAdd;
+        toAdd.isMultiline = isMultiline;
         strcpy(toAdd.abbreviation, abbreviation.c_str());
         strcpy(toAdd.expandsTo, expandsTo.c_str());
         entries.push_back(toAdd);
@@ -183,10 +188,11 @@ public:
     }
     for (int i = 0; i < entries.size(); i++)
     {
-      file << entries[i].abbreviation << ":" << entries[i].expandsTo << std::endl;
+      file << entries[i].isMultiline << " " << entries[i].abbreviation << DELIMITER << entries[i].expandsTo;
+      if (i != entries.size() - 1) { file << DELIMITER; }
     }
 
-    DEBUG("SAVED");
+    DEBUG("Saved our entries.");
     resetEntries();
   }
 

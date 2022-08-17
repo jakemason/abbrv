@@ -52,5 +52,6 @@ int main(int argc, char* args[])
     prevCounter        = nowCounter;
   }
 
+  platform->cleanUp();
   return 0;
 }

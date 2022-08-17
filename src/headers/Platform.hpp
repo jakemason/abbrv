@@ -17,7 +17,7 @@
 
 #include "Data.hpp"
 
-#if WINDOWS_BUILD
+#if WIN32
 #include <windows.h>
 #endif
 
@@ -39,7 +39,7 @@ public:
   void frameEnd();
   void handleOSEvents(Input* input);
   void initRenderer();
-  void clean();
+  void cleanUp();
 
   // varies from platform to platform
   static int isShiftActive();
@@ -58,8 +58,11 @@ public:
 
 
   bool isRunning;
-#if WINDOWS_BUILD
+#if WIN32
   static HHOOK keylistener;
+  static UINT WM_TASKBARCREATED;
+  static void addTrayIcon(SDL_Window* window);
+  static void removeTrayIcon(SDL_Window* window);
 #endif
 };
 

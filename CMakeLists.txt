@@ -35,7 +35,6 @@ add_definitions(-DDebugMode)
 option(EDITOR_MODE "Enables the game engine editor for development" ON)
 option(SDL_RENDERER "Enable the built-in SDL_Renderer (software rendering)" OFF)
 option(OPENGL_RENDERER "Enable the OpenGL renderer" ON)
-option(WINDOWS_TARGET "Build for Microsoft's Windows Operating System" ON)
 option(ENABLE_DEBUG "Enables various debugging outputs and logging" ON)
 
 if(EDITOR_MODE)
@@ -48,10 +47,6 @@ endif()
 
 if(OPENGL_RENDERER)
     add_definitions(-DOPENGL_RENDERER)
-endif()
-
-if(WINDOWS_TARGET)
-    add_definitions(-DWINDOWS_BUILD)
 endif()
 
 if(ENABLE_DEBUG)
@@ -79,6 +74,6 @@ file(GLOB_RECURSE SOURCES "./src/*.cpp")
 # TODO: 
 # WIN32 flag here disables the console which we want, but not before we've
 # added an in-editor console via IMGUI
-add_executable(abbrv ${SOURCES} ./src/abbrv.rc)
+add_executable(abbrv WIN32 ${SOURCES} ./src/abbrv.rc)
 
 target_link_libraries(abbrv glew32 opengl32 SDL2main SDL2 SDL2_image SDL2_ttf ${SDL2} )

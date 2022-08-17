@@ -15,6 +15,8 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_internal.h"
 
+#define UTIL_COLUMN_SIZE 35.0f
+
 #if WIN32
 #include <tchar.h>
 #endif
@@ -50,7 +52,7 @@ public:
       {
         if (ImGui::MenuItem("Open in Explorer"))
         {
-#if WINDOWS_BUILD
+#if WIN32
           PROCESS_INFORMATION ProcessInfo = {0};
           STARTUPINFO StartupInfo         = {0};
           std::string command             = "explorer.exe .";
@@ -73,7 +75,7 @@ public:
       ImGui::EndMainMenuBar();
     }
 
-    int columns = 3;
+    int columns = 4;
     bool open   = true;
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(ImVec2(screenWidth, screenHeight));
@@ -85,7 +87,8 @@ public:
 
       ImGui::TableSetupColumn("Abbreviation");
       ImGui::TableSetupColumn("Expands To");
-      ImGui::TableSetupColumn(" ", 50.0f);
+      ImGui::TableSetupColumn("##lines", ImGuiTableColumnFlags_WidthFixed, UTIL_COLUMN_SIZE);
+      ImGui::TableSetupColumn("##delete", ImGuiTableColumnFlags_WidthFixed, UTIL_COLUMN_SIZE);
       ImGui::TableHeadersRow();
 
       for (int row = 0; row < data->entries.size(); row++)
@@ -93,16 +96,15 @@ public:
         if (row == 0)
         {
           ImGui::TableSetColumnIndex(0);
-          ImGui::PushItemWidth(-FLT_MIN); // Right-aligned
+          ImGui::PushItemWidth(-FLT_MIN);
           ImGui::TableSetColumnIndex(1);
-          ImGui::PushItemWidth(-FLT_MIN); // Right-aligned
-          // ImGui::TableSetColumnWidth(1, 100);
+          ImGui::PushItemWidth(-FLT_MIN);
         }
         ImGui::TableNextRow();
         int column = 0;
         ImGui::TableSetColumnIndex(column);
         // ImGui::Text("Row %d Column %d", row, column);
-        ImGui::PushID(row * 3 + column); // assign unique id
+        ImGui::PushID(row * columns + column); // assign unique id
         if (ImGui::InputText("##v", data->entries[row].abbreviation, IM_ARRAYSIZE(data->entries[row].abbreviation)))
         {
           data->saveToFile();
@@ -112,38 +114,66 @@ public:
         column = 1;
         ImGui::TableSetColumnIndex(column);
         // ImGui::Text("Row %d Column %d", row, column);
-        ImGui::PushID(row * 3 + column); // assign unique id
-        if (ImGui::InputText("##v", data->entries[row].expandsTo, IM_ARRAYSIZE(data->entries[row].expandsTo)))
+        ImGui::PushID(row * columns + column); // assign unique id
+        if (data->entries[row].isMultiline)
         {
-          data->saveToFile();
+          if (ImGui::InputTextMultiline("##v", data->entries[row].expandsTo,
+                                        IM_ARRAYSIZE(data->entries[row].expandsTo)))
+          {
+            data->saveToFile();
+          }
+        }
+        else
+        {
+          if (ImGui::InputText("##v", data->entries[row].expandsTo, IM_ARRAYSIZE(data->entries[row].expandsTo)))
+          {
+            data->saveToFile();
+          }
         }
         ImGui::PopID();
 
         column = 2;
+
+
+        ImVec2 button_size(UTIL_COLUMN_SIZE, ImGui::GetFontSize() * 2.0f);
         ImGui::TableSetColumnIndex(column);
         // ImGui::Text("Row %d Column %d", row, column);
-        ImGui::PushID(row * 3 + column); // assign unique id
+        ImGui::PushID(row * columns + column); // assign unique id
+
+
+        std::string icon = data->entries[row].isMultiline ? ICON_FA_MINUS : ICON_FA_BARS;
+        if (ImGui::Button(icon.c_str(), button_size))
+        {
+          data->entries[row].isMultiline = !data->entries[row].isMultiline;
+        }
+        if (ImGui::IsItemHovered())
+        {
+          std::string text =
+              data->entries[row].isMultiline ? "Reduce to a single line entry" : "Expand to a multiline entry";
+          ImGui::SetTooltip(text.c_str());
+        }
+        ImGui::PopID();
+
+
+        column = 3;
+        ImGui::TableSetColumnIndex(column);
+        // ImGui::Text("Row %d Column %d", row, column);
+        ImGui::PushID(row * columns + column); // assign unique id
 
 
         ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(7.0f, 0.6f, 0.6f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(7.0f, 0.7f, 0.7f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(7.0f, 0.8f, 0.8f));
-        if (ImGui::Button(ICON_FA_TRASH)) { data->deleteIndex(row); }
+        if (ImGui::Button(ICON_FA_TRASH, button_size)) { data->deleteIndex(row); }
+        if (ImGui::IsItemHovered()) { ImGui::SetTooltip("Delete this pair. This cannot be undone."); }
         ImGui::PopStyleColor(3);
         ImGui::PopID();
       }
       ImGui::EndTable();
 
-      ImVec2 button_size(ImGui::GetFontSize() * 2.0f, ImGui::GetFontSize() * 2.0f);
+      ImVec2 button_size(ImGui::GetFontSize() * 3.0f, ImGui::GetFontSize() * 2.0f);
       if (ImGui::Button(ICON_FA_PLUS, button_size)) { data->entries.push_back({}); }
-
-#if DEBUG_MODE
-      ImGui::PopStyleColor();
-      ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.5f, 0.0f, 0.5f));
-      ImGui::Separator();
-      static char arr[255];
-      ImGui::InputText("Testing Area", arr, 255);
-#endif
+      if (ImGui::IsItemHovered()) { ImGui::SetTooltip("Add a new abbreviation & expansion pair."); }
     }
 
     ImGui::End();

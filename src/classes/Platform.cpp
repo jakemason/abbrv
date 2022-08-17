@@ -27,10 +27,11 @@
 #include "imgui_impl_sdl.h"
 
 
-#if WINDOWS_BUILD
+#if WIN32
 #include "Platform_Windows.hpp"
 #include "SDL_syswm.h"
 HHOOK Platform::keylistener = NULL;
+UINT Platform::WM_TASKBARCREATED;
 #endif
 
 AppData* Platform::data = nullptr;
@@ -228,25 +229,10 @@ void Platform::init(const char* title, int xpos, int ypos, int width, int height
 
   window = SDL_CreateWindow(title, xpos, ypos, width, height,
                             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-
-#if WINDOWS_BUILD
-  SDL_SysWMinfo info;
-  SDL_VERSION(&info.version);
-
-  NOTIFYICONDATA iconData;
-  if (SDL_GetWindowWMInfo(window, &info))
-  {
-    iconData.uCallbackMessage = WM_USER + 1;
-    iconData.uFlags           = NIF_ICON | NIF_TIP | NIF_MESSAGE;
-    // iconData.hIcon            = LoadIcon(NULL, IDI_INFORMATION);
-    int iconConst   = 102; // NOTE: defined in "abbrv.rc"
-    iconData.hIcon  = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(iconConst));
-    iconData.cbSize = sizeof(iconData);
-    iconData.hWnd   = info.info.win.window;
-    strcpy_s(iconData.szTip, "abbrv");
-
-    bool success = Shell_NotifyIcon(NIM_ADD, &iconData);
-  }
+#if WIN32
+  SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+  WM_TASKBARCREATED = RegisterWindowMessageW(L"TaskbarCreated");
+  addTrayIcon(window);
 #endif
   // NOTE
   // This is NOT good enough by itself. An ".ico" file is required as well
@@ -269,7 +255,7 @@ void Platform::init(const char* title, int xpos, int ypos, int width, int height
   fullTitle += (const char*)glGetString(GL_VERSION);
 #endif
 
-#if WINDOWS_BUILD
+#if WIN32
   fullTitle += " | Windows OS";
 #endif
 
@@ -322,7 +308,7 @@ void Platform::initRenderer()
 
 void Platform::handleOSEvents(Input* input)
 {
-  SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+
   memset(input->isKeyPressed, 0, sizeof(input->isKeyPressed));
   input->mouseScroll      = 0;
   input->leftClicked      = false;
@@ -338,22 +324,25 @@ void Platform::handleOSEvents(Input* input)
   {
     switch (event.type)
     {
-#if WINDOWS_BUILD
+#if WIN32
       case SDL_SYSWMEVENT:
       {
         if (event.syswm.msg->msg.win.msg == WM_USER + 1)
         {
           if (LOWORD(event.syswm.msg->msg.win.lParam) == WM_LBUTTONDBLCLK)
           {
-            int flags = SDL_GetWindowFlags(window);
-            DEBUG("HAS MIN FLAG? %d", flags & SDL_WINDOW_MINIMIZED);
-            DEBUG("HAS MAX FLAG? %d", flags & SDL_WINDOW_MAXIMIZED);
-            SDL_ShowWindow(window);
+            // TODO: I have no clue why SDL_RestoreWindow() just refuses to restore the window.
+            // I _need_ to do it manually with the window handle. :/
+            SDL_SysWMinfo info;
+            SDL_VERSION(&info.version);
+            if (SDL_GetWindowWMInfo(window, &info)) { ShowWindow(info.info.win.window, SW_SHOWNORMAL); }
             SDL_RaiseWindow(window);
-            //  TODO: BUG MAD SO MAD
-            //   Why the hell does this only restore correctly if we maximize the window?
-            //   SDL_MaximizeWindow(window);
           }
+        }
+        else if (event.syswm.msg->msg.win.msg == WM_TASKBARCREATED)
+        {
+          DEBUG("Explorer crashed? Let's recreate our tray icon.");
+          addTrayIcon(window);
         }
         break;
       }
@@ -457,7 +446,7 @@ void Platform::handleOSEvents(Input* input)
 
       case SDL_WINDOWEVENT:
       {
-#if WINDOWS_BUILD
+#if WIN32
         input->windowID = event.window.windowID;
         if (event.window.event == SDL_WINDOWEVENT_MINIMIZED) { SDL_HideWindow(window); }
 #endif
@@ -484,8 +473,11 @@ void Platform::handleOSEvents(Input* input)
   }
 }
 
-void Platform::clean()
+void Platform::cleanUp()
 {
+#if WIN32
+  removeTrayIcon(window);
+#endif
   SDL_GL_DeleteContext(context);
   SDL_DestroyWindow(window);
   SDL_Quit();
