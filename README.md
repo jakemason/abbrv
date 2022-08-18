@@ -14,7 +14,7 @@ While abbrv is running, typing the abbreviation into _any_ program will replace 
 abbreviation with its associated expansion. You can see an example of this running in Notepad below,
 but the effect is the same in Outlook, Slack, Discord, etc.
 
-https://user-images.githubusercontent.com/12981369/185302539-272db4fa-55d6-43de-ab7b-ba37ed442efb.mp4
+https://user-images.githubusercontent.com/12981369/185303270-7d0616ec-620b-4568-b092-a47a1e6f9dcc.mp4
 
 This project was created as part of the Wheel Reinvention Jam 2022: a one-week jam to change the status
 quo.
