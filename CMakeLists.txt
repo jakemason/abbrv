@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.8.12)
 project(abbrv)
 
 macro(RemoveCXXFlag flag)
-    string(REPLACE "${flag}" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
-    string(REPLACE "${flag}" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+  string(REPLACE "${flag}" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+  string(REPLACE "${flag}" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 endmacro()
 
 set(CMAKE_CXX_STANDARD 17)
@@ -38,31 +38,31 @@ option(OPENGL_RENDERER "Enable the OpenGL renderer" ON)
 option(ENABLE_DEBUG "Enables various debugging outputs and logging" ON)
 
 if(EDITOR_MODE)
-    add_definitions(-DEDITOR_MODE)
+  add_definitions(-DEDITOR_MODE)
 endif()
 
 if(SDL_RENDERER)
-    add_definitions(-DSDL_RENDERER)
+  add_definitions(-DSDL_RENDERER)
 endif()
 
 if(OPENGL_RENDERER)
-    add_definitions(-DOPENGL_RENDERER)
+  add_definitions(-DOPENGL_RENDERER)
 endif()
 
 if(ENABLE_DEBUG)
-    add_definitions(-DDEBUG_MODE)
+  add_definitions(-DDEBUG_MODE)
 else()
-    add_link_options(/LTCG) # Suggested when using "/GL"
-    add_compile_options(/O2 /GL) #optimization
-    # Not sure where these flags are getting added, but they conflict
-    # with /O2 so they get stripped here.
-    RemoveCXXFlag("/RTC1")
-    RemoveCXXFlag("/Od")
+  add_link_options(/LTCG) # Suggested when using "/GL"
+  add_compile_options(/O2 /GL) #optimization
+  # Not sure where these flags are getting added, but they conflict
+  # with /O2 so they get stripped here.
+  RemoveCXXFlag("/RTC1")
+  RemoveCXXFlag("/Od")
 
 
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ./abbrv)
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ./abbrv)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ./abbrv)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ./abbrv)
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ./abbrv)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ./abbrv)
 
 endif()
 
@@ -80,6 +80,12 @@ file(GLOB_RECURSE SOURCES "./src/*.cpp")
 # TODO: 
 # WIN32 flag here disables the console which we want, but not before we've
 # added an in-editor console via IMGUI
-add_executable(abbrv WIN32 ${SOURCES} ./src/abbrv.rc)
+
+if(ENABLE_DEBUG)
+  add_executable(abbrv ${SOURCES} ./src/abbrv.rc)
+else()
+  add_executable(abbrv WIN32 ${SOURCES} ./src/abbrv.rc)
+endif()
+
 
 target_link_libraries(abbrv glew32 opengl32 SDL2main SDL2 ${SDL2})

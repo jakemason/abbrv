@@ -10,12 +10,14 @@ int Platform::isCapsLockActive() { return (GetKeyState(VK_CAPITAL) & 1) == 1; }
 
 void Platform::onKeyPress(char pressed)
 {
-  const int BACKSPACE_PRESSED = 8;   // TODO: Use this to "back up" the Tries?
-  const int MODIFIER_PRESSED  = -52; // both alt and ctrl return -52 and we don't want to consider
-                                     // these "breaks" in the matching chain so don't report them
-  if ((int)pressed == MODIFIER_PRESSED) return;
-
   DEBUG("Input received. char: %c, value of %d", pressed, (int)pressed);
+
+  const int MODIFIER_PRESSED = -52; // both alt and ctrl return -52 and we don't want to consider
+                                    // these "breaks" in the matching chain so don't report them
+  const int SHIFT_RELEASED = 0;     // we also need to ignore when shift is released
+
+  if (pressed == MODIFIER_PRESSED || pressed == SHIFT_RELEASED) return;
+
   // TODO: Okay, so now we just do the Trie thing!
   data->advanceSearches(pressed);
   Abbreviation* toSend = data->checkForCompletions();
