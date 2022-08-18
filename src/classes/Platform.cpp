@@ -7,6 +7,7 @@
  * @date 08-13-2022
  *
  **/
+#define GLEW_STATIC
 #define GL3_PROTOTYPES 1
 #include "Platform.hpp"
 

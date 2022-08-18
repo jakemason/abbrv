@@ -1,9 +1,9 @@
 cd ../
 # Copy over our libraries to the final directory
 mkdir -p abbrv
-cp ./bin/zlib1.dll ./abbrv/.
-cp ./bin/SDL2.dll ./abbrv/.
-cp ./bin/glew32.dll ./abbrv/.
+# cp ./bin/zlib1.dll ./abbrv/.
+# cp ./bin/SDL2.dll ./abbrv/.
+# cp ./bin/glew32.dll ./abbrv/.
 
 
 # NOTE: Set our cmake options flags, these are NOT the same as the definitions in

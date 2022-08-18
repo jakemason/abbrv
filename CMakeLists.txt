@@ -21,15 +21,11 @@ include_directories(
   ./include/SDL2
   ./src/headers/External
 )
-link_directories(./lib ./bin)
+link_directories(./lib)
 
 # Disable certain compiler warnings, take care here!
 # Also, enable parallel builds for faster compile times
 add_compile_options(/wd4244 /wd4996 /MP)
-
-find_library(SDL2_LIBRARY REQUIRED NAMES SDL2 HINTS ./lib)
-
-add_definitions(-DDebugMode)
 
 #options
 option(EDITOR_MODE "Enables the game engine editor for development" ON)
@@ -58,12 +54,14 @@ else()
   # with /O2 so they get stripped here.
   RemoveCXXFlag("/RTC1")
   RemoveCXXFlag("/Od")
+  RemoveCXXFlag("/MD")
 
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ./abbrv)
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ./abbrv)
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ./abbrv)
-
 endif()
 
 
@@ -88,4 +86,4 @@ else()
 endif()
 
 
-target_link_libraries(abbrv glew32 opengl32 SDL2main SDL2 ${SDL2})
+target_link_libraries(abbrv setupapi.lib winmm.lib imm32.lib version.lib glew32s.lib opengl32.lib SDL2main.lib SDL2-static.lib)
