@@ -20,6 +20,7 @@ tags.log
 src.dll
 src_temp.dll
 .vs/
+config.abbrv # don't save any built configs
 
 # Don't store any logs, aside from the folder itself
 logs/*
