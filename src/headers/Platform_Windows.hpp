@@ -31,7 +31,9 @@ void Platform::onKeyPress(char pressed)
 
   // finally, if our Editor inputs are active we also want to bail because we don't want the
   // autocomplete triggering while the user is editing their settings.
-  if (pressed == MODIFIER_PRESSED || pressed == SHIFT_RELEASED || Editor::anInputIsActive) return;
+  bool windowHasInputFocus       = (SDL_GetWindowFlags(Platform::window) & SDL_WINDOW_INPUT_FOCUS);
+  bool inputsAndWindowAreaActive = Editor::anInputIsActive && windowHasInputFocus;
+  if (pressed == MODIFIER_PRESSED || pressed == SHIFT_RELEASED || inputsAndWindowAreaActive) return;
 
   data->advanceSearches(pressed);
   Abbreviation* toSend = data->checkForCompletions();
@@ -105,6 +107,9 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 void Platform::simulateKeyboardInput(int abbreviationLength, std::string toSend)
 {
+  // disable our hook here so we can't have an abbreviation that creates an expansion which
+  // creates an abbreviation which creates an expansion which creates an expansion...
+  UnhookWindowsHookEx(keylistener);
   HKL kbl = GetKeyboardLayout(0);
 
   // send a backspace for each character in our abbreviation
@@ -151,6 +156,8 @@ void Platform::simulateKeyboardInput(int abbreviationLength, std::string toSend)
       SendInput(1, &shift, sizeof(INPUT));
     }
   }
+
+  registerKeyboardHook();
 }
 
 void Platform::registerKeyboardHook()

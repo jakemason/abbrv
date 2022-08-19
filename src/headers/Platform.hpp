@@ -50,7 +50,7 @@ public:
 
   std::string version = "1.0";
 
-  SDL_Window* window;
+  inline static SDL_Window* window;
   SDL_GLContext context;
   SDL_Renderer* renderer;
 

@@ -48,7 +48,6 @@ int main(int argc, char* args[])
     int nowCounter     = SDL_GetPerformanceCounter();
     int counterElapsed = nowCounter - prevCounter;
     deltaTime          = (((float)counterElapsed * 1000.0f) / (float)countFrequency) / 1000.0f;
-    prevCounter        = nowCounter;
   }
 
   platform->cleanUp();
