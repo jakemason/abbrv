@@ -4,8 +4,12 @@
  *
  * @version 0.01
  * @author Jake Mason
- * @date 08-15-2022
+ * @date 08-17-2022
  *
+ * abbrv is licensed under the Creative Commons
+ * Attribution-NonCommercial-ShareAlike 4.0 International License
+ *
+ * See LICENSE.txt for more information
  **/
 
 #pragma once

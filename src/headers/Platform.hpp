@@ -6,6 +6,10 @@
  * @author Jake Mason
  * @date 08-17-2022
  *
+ * abbrv is licensed under the Creative Commons
+ * Attribution-NonCommercial-ShareAlike 4.0 International License
+ *
+ * See LICENSE.txt for more information
  **/
 
 #ifndef PLATFORM_HPP
@@ -59,7 +63,7 @@ public:
 
   bool isRunning;
 #if WIN32
-  static HHOOK keylistener;
+  static HHOOK keyboardHook;
   static UINT WM_TASKBARCREATED;
   static void addTrayIcon(SDL_Window* window);
   static void removeTrayIcon(SDL_Window* window);

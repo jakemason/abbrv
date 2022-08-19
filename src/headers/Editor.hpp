@@ -4,8 +4,12 @@
  *
  * @version 0.01
  * @author Jake Mason
- * @date 08-18-2022
+ * @ date 08-18-2022
  *
+ * abbrv is licensed under the Creative Commons
+ * Attribution-NonCommercial-ShareAlike 4.0 International License
+ *
+ * See LICENSE.txt for more information
  **/
 
 #pragma once
@@ -44,11 +48,22 @@ class Editor
 {
 public:
   inline static bool anInputIsActive;
+  inline static bool showHelpMenu = false;
   static void setEditorStyles()
   {
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(4, 4));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
     ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.0f, 0.0f));
+  }
+
+  static void showHelpWindow()
+  {
+    if (showHelpMenu) { ImGui::OpenPopup("Help"); }
+    if (ImGui::BeginPopupModal("Help", &showHelpMenu, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+      ImGui::Text("All those beautiful files will be deleted.\nThis operation cannot be undone!\n\n");
+      ImGui::EndPopup();
+    }
   }
 
   static void render(Platform* platform, Input* input, AppData* data)
@@ -67,8 +82,10 @@ public:
 
     if (ImGui::BeginMainMenuBar())
     {
-      if (ImGui::BeginMenu("Config"))
+
+      if (ImGui::BeginMenu("Help"))
       {
+        if (ImGui::MenuItem("Getting Started")) { showHelpMenu = true; }
 #if WIN32
         if (ImGui::MenuItem("Open in Explorer"))
         {
@@ -80,14 +97,10 @@ public:
           CreateProcess(NULL, _T(cmd), NULL, NULL, FALSE, 0, NULL, NULL, &StartupInfo, &ProcessInfo);
         }
 #endif
-        ImGui::EndMenu();
-      }
 
-      if (ImGui::BeginMenu("Help"))
-      {
-        std::string version = "abbrv v." + platform->version;
-        ImGui::Text("%s", version.c_str());
         ImGui::Separator();
+        ImGui::Text("abbrv");
+        ImGui::Text("Version: %s", platform->version.c_str());
         ImGui::Text(ICON_FA_COPYRIGHT " 2022 Jake Mason. All rights reserved.");
         ImGui::EndMenu();
       }
@@ -101,6 +114,8 @@ public:
 
     ImGui::Begin("Main Window", &open,
                  ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_HiddenTabBar | ImGuiWindowFlags_NoResize);
+
+
     if (ImGui::BeginTable("dataTable", columns, ImGuiTableFlags_Borders))
     {
 
@@ -129,7 +144,7 @@ public:
           {
             data->saveToFile();
           }
-          if (ImGui::IsItemActive()) anInputIsActive = true;
+          if (ImGui::IsItemActive() && ImGui::IsWindowFocused()) anInputIsActive = true;
           ImGui::PopID();
         }
 
@@ -205,6 +220,7 @@ public:
       if (ImGui::IsItemHovered()) { ImGui::SetTooltip("Add a new abbreviation & expansion pair."); }
     }
 
+    showHelpWindow();
     ImGui::End();
   }
 };

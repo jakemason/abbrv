@@ -11,6 +11,10 @@ text="/**
  * @author Jake Mason
  * @date DATE
  *
+ * abbrv is licensed under the Creative Commons
+ * Attribution-NonCommercial-ShareAlike 4.0 International License
+ *
+ * See LICENSE.txt for more information
  **/
 "
 prev_version=$1

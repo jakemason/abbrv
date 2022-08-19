@@ -6,6 +6,10 @@
  * @author Jake Mason
  * @date 08-17-2022
  *
+ * abbrv is licensed under the Creative Commons
+ * Attribution-NonCommercial-ShareAlike 4.0 International License
+ *
+ * See LICENSE.txt for more information
  **/
 
 #include <windows.h>
@@ -109,7 +113,7 @@ void Platform::simulateKeyboardInput(int abbreviationLength, std::string toSend)
 {
   // disable our hook here so we can't have an abbreviation that creates an expansion which
   // creates an abbreviation which creates an expansion which creates an expansion...
-  UnhookWindowsHookEx(keylistener);
+  UnhookWindowsHookEx(keyboardHook);
   HKL kbl = GetKeyboardLayout(0);
 
   // send a backspace for each character in our abbreviation
@@ -165,5 +169,5 @@ void Platform::registerKeyboardHook()
   // Retrieve the applications instance
   HINSTANCE instance = GetModuleHandle(NULL);
   // Set a global Windows Hook to capture keystrokes using the function declared above
-  keylistener = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, instance, 0);
+  keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, instance, 0);
 }

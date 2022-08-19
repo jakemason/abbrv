@@ -6,6 +6,10 @@
  * @author Jake Mason
  * @date 08-18-2022
  *
+ * abbrv is licensed under the Creative Commons
+ * Attribution-NonCommercial-ShareAlike 4.0 International License
+ *
+ * See LICENSE.txt for more information
  **/
 #define GLEW_STATIC
 #define GL3_PROTOTYPES 1
@@ -33,7 +37,7 @@
 #if WIN32
 #include "Platform_Windows.hpp"
 #include "SDL_syswm.h"
-HHOOK Platform::keylistener = NULL;
+HHOOK Platform::keyboardHook = NULL;
 UINT Platform::WM_TASKBARCREATED;
 #endif
 
