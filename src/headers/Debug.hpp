@@ -4,7 +4,7 @@
  *
  * @version 0.01
  * @author Jake Mason
- * @date 08-13-2022
+ * @date 08-17-2022
  *
  **/
 
@@ -53,7 +53,6 @@ public:
   static void error(const char* file, int line, std::string format, ...);
   static void log(const char* file, int line, std::string format, ...);
   static void warn(const char* file, int line, std::string format, ...);
-  static void updateRecentLog();
 
   static FILE* file;
   static std::string lastLine;

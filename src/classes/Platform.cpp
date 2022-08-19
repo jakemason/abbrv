@@ -4,7 +4,7 @@
  *
  * @version 0.01
  * @author Jake Mason
- * @date 08-13-2022
+ * @date 08-18-2022
  *
  **/
 #define GLEW_STATIC
@@ -18,7 +18,7 @@
 #include <fstream>
 #include <vector>
 
-#include "Data.hpp"
+#include "AppData.hpp"
 #include "Debug.hpp"
 #include "Editor.hpp"
 #include "Icons.hpp"

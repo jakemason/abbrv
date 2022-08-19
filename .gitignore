@@ -47,7 +47,7 @@ src/*.vcxproj
 src/*.vcxproj.filters
 CMakeCache.txt
 CMakeFiles
-Debug
+Debug/
 cmake_install.cmake
 cgame.txt
 .cache/

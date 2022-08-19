@@ -4,12 +4,12 @@
  *
  * @version 0.01
  * @author Jake Mason
- * @date 08-13-2022
+ * @date 08-18-2022
  *
  **/
 #include <SDL2/SDL.h>
 
-#include "Data.hpp"
+#include "AppData.hpp"
 #include "Debug.hpp"
 #include "Editor.hpp"
 #include "Input.hpp"

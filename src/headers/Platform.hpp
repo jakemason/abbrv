@@ -4,7 +4,7 @@
  *
  * @version 0.01
  * @author Jake Mason
- * @date 08-13-2022
+ * @date 08-17-2022
  *
  **/
 
@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include "Data.hpp"
+#include "AppData.hpp"
 
 #if WIN32
 #include <windows.h>

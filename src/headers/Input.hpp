@@ -4,7 +4,7 @@
  *
  * @version 0.01
  * @author Jake Mason
- * @date 08-12-2022
+ * @date 08-15-2022
  *
  **/
 
@@ -16,8 +16,7 @@
 // https://wiki.libsdl.org/SDLScancodeLookup
 #define SDL_SCAN_CODES_COUNT 284
 
-// TODO: std lib call
-#include <iostream>
+#include <string>
 
 class Input
 {

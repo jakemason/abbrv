@@ -4,7 +4,7 @@
  *
  * @version 0.01
  * @author Jake Mason
- * @date 08-13-2022
+ * @date 08-17-2022
  *
  **/
 
@@ -78,13 +78,7 @@ void Debug::init()
   Debug::file = fopen(filename.c_str(), "w+");
 }
 
-void Debug::log(const char* file, int line, std::string format, ...)
-{
-  PRINT_OUTPUT;
-  // TODO: Fix writing the log to a file again. It currently crashes
-  // because Debug::file is NULL
-  // vfprintf(Debug::file, with_newline.c_str(), args);
-}
+void Debug::log(const char* file, int line, std::string format, ...) { PRINT_OUTPUT; }
 
 void Debug::warn(const char* file, int line, std::string format, ...)
 {
@@ -114,21 +108,4 @@ void Debug::error(const char* file, int line, std::string format, ...)
   printf(RESET);
 #endif
   PRINT_OUTPUT;
-}
-
-void Debug::updateRecentLog()
-{
-  // TODO: Get this working again
-  /*
-  FILE* recent_log = fopen(("logs/most_recent.log"), "w+");
-  rewind(Debug::file);
-  char c;
-  c = fgetc(Debug::file);
-  while (c != EOF)
-  {
-      fputc(c, recent_log);
-      c = fgetc(Debug::file);
-  }
-  fclose(recent_log);
-  */
 }
