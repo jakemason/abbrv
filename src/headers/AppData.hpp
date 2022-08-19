@@ -12,14 +12,16 @@
 #ifndef DATA_HPP
 #define DATA_HPP
 
-#define ABBREVIATION_MAX_SIZE 1024 - 1
-#define EXPAND_MAX_SIZE       4096 - 1
+#define ABBREVIATION_MAX_SIZE 1024
+#define EXPAND_MAX_SIZE       4096
 
 // we allow all ASCII entries
 #define ALPHABET_SIZE 128
 
 #define SAVE_FILE_NAME "config.abbrv"
 
+// we need to use an unusual delimiter in the save format so that we can safely
+// accept _almost_ any input from the user in their abbreviations or expansions
 #define DELIMITER '\x1f'
 
 #include <fstream>
@@ -67,9 +69,13 @@ struct TrieNode
   {
     TrieNode *current = root;
 
-    int index = key;
-    if (!current->children[index]) { return false; }
+    if (!current->children[(int)key])
+    {
+      DEBUG("Value of %c not found.", key);
+      return false;
+    }
 
+    DEBUG("Value of %c found.", key);
     return true;
   }
 
@@ -112,7 +118,7 @@ public:
 
   Abbreviation *checkForCompletions()
   {
-    DEBUG("LIVING NODES SIZE %d", livingNodes.size());
+    DEBUG("Living Nodes Count: %d", livingNodes.size());
     for (int i = (int)livingNodes.size() - 1; i >= 0; i--)
     {
       if (livingNodes[i]->terminal)
@@ -130,10 +136,13 @@ public:
   {
     for (int i = (int)livingNodes.size() - 1; i >= 0; i--)
     {
-      if (TrieNode::containsPartial(livingNodes[i], c)) { livingNodes.push_back(livingNodes[i]->children[(int)c]); }
+      if (TrieNode::containsPartial(livingNodes[i], c))
+      {
+        // this one matches, continue advancing down the children
+        livingNodes[i] = livingNodes[i]->children[(int)c];
+      }
       else
       {
-        // TODO: If we DON'T continue here... we kill this living node? I think?
         std::swap(livingNodes[i], livingNodes[livingNodes.size() - 1]);
         livingNodes.pop_back();
       }

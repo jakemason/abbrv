@@ -64,7 +64,6 @@ void Platform::init()
 
   float ddpi, hdpi, vdpi;
   SDL_GetDisplayDPI(0, &ddpi, &hdpi, &vdpi);
-
   float dpiScalar = ddpi / systemDefaultDPI;
 
   // NOTE: Fonts must be loaded _here_ as shown below, before ImGuiSDL::Initialize is called.
@@ -75,10 +74,7 @@ void Platform::init()
   ImGuiStyle* style                    = &ImGui::GetStyle();
   // we want to scale our font size by the dpi of our current monitor,
   // otherwise we end up with a tiny font
-  //
-  // Additionally, the font we want loaded by "default" needs to be
-  // loaded first.
-  io.Fonts->AddFontFromMemoryCompressedTTF(roboto_compressed_data, roboto_compressed_size, (int)(19 * dpiScalar));
+  io.Fonts->AddFontFromMemoryCompressedTTF(roboto_compressed_data, roboto_compressed_size, (int)(19.0f * dpiScalar));
 
   // merge in icons from Font Awesome
   static const ImWchar icons_ranges[] = {ICON_MIN_FA, ICON_MAX_FA, 0};
@@ -165,12 +161,6 @@ void Platform::frameStart(Input* input)
     SDL_GetWindowSize(window, &screenWidth, &screenHeight);
 
     ImGuiViewport* viewport = ImGui::FindViewportByPlatformHandle((void*)SDL_GetWindowFromID(input->windowID));
-    // NOTE: Viewport Validity
-    // This can fail when the engine undergoes a hot-reload. We need to
-    // check this to make sure we don't attempt to access the viewport in
-    // this case. ImGui appears to eventually correct this and it continues
-    // to work, but it seems there's a delay of at least a single frame
-    // where this does not return a valid pointer.
     if (viewport != nullptr)
     {
       if (input->windowClosed) { viewport->PlatformRequestClose = true; }
@@ -180,13 +170,13 @@ void Platform::frameStart(Input* input)
       if (input->windowResized) { viewport->PlatformRequestResize = true; }
     }
 
+#if OPENGL_RENDERER
     if (input->windowResized)
     {
-#if OPENGL_RENDERER
       ImGui_ImplOpenGL3_NewFrame();
       ImGui_ImplSDL2_NewFrame(window);
-#endif
     }
+#endif
 
     ImGui::NewFrame();
   }
@@ -206,7 +196,7 @@ void Platform::frameEnd()
 #endif
 }
 
-void Platform::init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen)
+void Platform::init(const char* title, int width, int height)
 {
   std::string fullTitle = std::string(title);
   fullTitle             = fullTitle + " " + version;
@@ -223,22 +213,14 @@ void Platform::init(const char* title, int xpos, int ypos, int width, int height
     return;
   }
 
-  window = SDL_CreateWindow(title, xpos, ypos, width, height,
+  window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
                             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 #if WIN32
   SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
   WM_TASKBARCREATED = RegisterWindowMessageW(L"TaskbarCreated");
   addTrayIcon(window);
 #endif
-  // NOTE
-  // This is NOT good enough by itself. An ".ico" file is required as well
-  // and baked directly into the program itself through CMake. See
-  // "CMakeLists.txt" for more information, as well as the
-  // associated "abbrv.rc" file.
-  // SDL_Surface* icon = IMG_Load("../assets/app_icon.png");
-  // SDL_SetWindowIcon(window, icon);
 
-  if (fullscreen) SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 
   // this line is needed to ensure that textures are recreated when the
   // window is resized. If we remove this line and resize the window we
@@ -265,7 +247,7 @@ void Platform::init(const char* title, int xpos, int ypos, int width, int height
 
   SDL_SetWindowTitle(window, fullTitle.c_str());
 
-  SDL_SetWindowMinimumSize(window, 500, 300);
+  SDL_SetWindowMinimumSize(window, width, height);
 }
 
 void Platform::initRenderer()
@@ -291,9 +273,6 @@ void Platform::initRenderer()
   glewInit();
 #endif
   glEnable(GL_SCISSOR_TEST);
-  glScissor(0, 0, 1024, 576);
-  glViewport(0, 0, 1024, 576);
-
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 

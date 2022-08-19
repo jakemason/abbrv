@@ -11,6 +11,7 @@
 #include <windows.h>
 
 #include "Debug.hpp"
+#include "Editor.hpp"
 #include "Platform.hpp"
 #include "SDL_syswm.h"
 
@@ -27,7 +28,10 @@ void Platform::onKeyPress(char pressed)
   const int SHIFT_RELEASED = 0;     // we also need to ignore when shift is released for the same
                                     // reasons
 
-  if (pressed == MODIFIER_PRESSED || pressed == SHIFT_RELEASED) return;
+
+  // finally, if our Editor inputs are active we also want to bail because we don't want the
+  // autocomplete triggering while the user is editing their settings.
+  if (pressed == MODIFIER_PRESSED || pressed == SHIFT_RELEASED || Editor::anInputIsActive) return;
 
   data->advanceSearches(pressed);
   Abbreviation* toSend = data->checkForCompletions();

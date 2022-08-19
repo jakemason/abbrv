@@ -20,9 +20,8 @@ int main(int argc, char* args[])
   Input* input       = new Input();
   Platform* platform = new Platform();
   int screenWidth    = 800;
-  int screenHeight   = 500;
-  int fullscreen     = 0;
-  platform->init("abbrv", 50, 50, screenWidth, screenHeight, fullscreen);
+  int screenHeight   = 400;
+  platform->init("abbrv", screenWidth, screenHeight);
   platform->registerKeyboardHook();
   int countFrequency = SDL_GetPerformanceFrequency();
   float deltaTime    = 0.0f;

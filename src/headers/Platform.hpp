@@ -32,7 +32,7 @@ public:
   Platform();
   ~Platform();
 
-  void init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen);
+  void init(const char* title, int width, int height);
   void init();
   void io(float deltaTime, Input* input);
   void frameStart(Input* input);

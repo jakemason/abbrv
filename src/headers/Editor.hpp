@@ -28,7 +28,7 @@
 #include "imgui_internal.h"
 
 // dictates the size of the columns for the trash and expansion icons (columns 3 & 4)
-//                                             v  & v
+//           1                   2             3   4
 // \-------------------\---------------------\---\---\
 // \                   \                     \   \   \
 // \                   \                     \   \   \
@@ -43,6 +43,7 @@
 class Editor
 {
 public:
+  inline static bool anInputIsActive;
   static void setEditorStyles()
   {
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(4, 4));
@@ -52,6 +53,7 @@ public:
 
   static void render(Platform* platform, Input* input, AppData* data)
   {
+    anInputIsActive = false;
     int screenWidth, screenHeight;
     SDL_GetWindowSize(platform->window, &screenWidth, &screenHeight);
     if (input->windowResized)
@@ -67,17 +69,17 @@ public:
     {
       if (ImGui::BeginMenu("Config"))
       {
+#if WIN32
         if (ImGui::MenuItem("Open in Explorer"))
         {
-#if WIN32
           PROCESS_INFORMATION ProcessInfo = {0};
           STARTUPINFO StartupInfo         = {0};
           std::string command             = "explorer.exe .";
           char cmd[128];
           strcpy(cmd, command.c_str());
           CreateProcess(NULL, _T(cmd), NULL, NULL, FALSE, 0, NULL, NULL, &StartupInfo, &ProcessInfo);
-#endif
         }
+#endif
         ImGui::EndMenu();
       }
 
@@ -127,6 +129,7 @@ public:
           {
             data->saveToFile();
           }
+          if (ImGui::IsItemActive()) anInputIsActive = true;
           ImGui::PopID();
         }
 
@@ -142,6 +145,7 @@ public:
             {
               data->saveToFile();
             }
+            if (ImGui::IsItemActive()) anInputIsActive = true;
           }
           else
           {
@@ -149,6 +153,7 @@ public:
             {
               data->saveToFile();
             }
+            if (ImGui::IsItemActive()) anInputIsActive = true;
           }
           ImGui::PopID();
         }
