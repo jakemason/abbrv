@@ -76,7 +76,7 @@ public:
       ImGui::TextWrapped("My abbreviation will not expand! Why not?");
       ImGui::Spacing();
       ImGui::TextWrapped(
-          "Make sure that you don't have an illusive space hiding before, or after, the abbreviation. It's most like "
+          "Make sure that you don't have an illusive space hiding before, or after, the abbreviation. It's most likely "
           "that you've typed 'my_abbreviation ' when you really meant to type 'my_abbreviation'.");
       ImGui::Separator();
 

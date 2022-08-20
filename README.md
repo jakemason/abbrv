@@ -20,12 +20,12 @@ https://user-images.githubusercontent.com/12981369/185303270-7d0616ec-620b-4568-
 
 ### 1. How do I prevent abbreviations from activating when I don't want them to?
 
-I suggest starting all of your abbreviations with a unique prefix that you are unlikely to type by mistake. 
+I suggest starting all of your abbreviations with a unique prefix that you are unlikely to type by mistake.
 For example, I use ';;' as a prefix to all of my abbreviations like so: ';;phone' or ';;apikey'.
 
 ### 2. Are there any universally useful expansions?
 
-These vary widely, but common language shorthands which you can't use in a professional setting are 
+These vary widely, but common language shorthands which you can't use in a professional setting are
 good candidates:
 
 - a11y -> accessibility
@@ -41,11 +41,16 @@ that you've typed 'my_abbreviation ' when you really meant to type 'my_abbreviat
 
 ### 4. Can I save my settings across multiple machines?
 
-Yes, simply copy the 'config.abbrv' file that found alongside abbrv.exe to the same folder as the 
-executable on another machine and all of your abbreviations will be there. You can quickly find the 
+Yes, simply copy the 'config.abbrv' file that found alongside abbrv.exe to the same folder as the
+executable on another machine and all of your abbreviations will be there. You can quickly find the
 'config.abbrv' file by clicking Help -> Open in Explorer."
 
-### 5. Can I use this for expanding code snippets in X editor?
+### 5. Does this work while abbrv is minimized?
+
+Yes. As long as you minimize the window (it goes to the system tray area, not taskbar!) it will
+continue to work. Closing the window will disable the expansion functionality.
+
+### 6. Can I use this for expanding code snippets in X editor?
 
 The likely answer is yes, _but_ you should probably find a better code/snippet expander for programming.
 Most editors these days will have some sort of context-aware expansion features that are far more beneficial
