@@ -116,50 +116,74 @@ void Platform::simulateKeyboardInput(int abbreviationLength, std::string toSend)
   UnhookWindowsHookEx(keyboardHook);
   HKL kbl = GetKeyboardLayout(0);
 
-  // send a backspace for each character in our abbreviation
-  for (int i = 0; i < abbreviationLength; i++)
-  {
-    INPUT input  = {};
-    input.type   = INPUT_KEYBOARD;
-    input.ki.wVk = VK_BACK;
-    SendInput(1, &input, sizeof(INPUT));
 
-    input.ki.dwFlags = KEYEVENTF_KEYUP;
-    SendInput(1, &input, sizeof(INPUT));
+  // TODO: Max limit here?
+  INPUT inputs[4096] = {};
+
+  int totalPresses = 0;
+
+  // send a backspace for each character in our abbreviation
+  for (int i = 0; i < abbreviationLength * 2; i += 2)
+  {
+    inputs[i]            = {};
+    inputs[i].type       = INPUT_KEYBOARD;
+    inputs[i].ki.wVk     = VK_BACK;
+    inputs[i].ki.dwFlags = 0;
+
+    inputs[i + 1]            = {};
+    inputs[i + 1].type       = INPUT_KEYBOARD;
+    inputs[i + 1].ki.wVk     = VK_BACK;
+    inputs[i + 1].ki.dwFlags = KEYEVENTF_KEYUP;
+    totalPresses += 2;
   }
 
+  int offset = abbreviationLength * 2;
 
-  for (int i = 0; i < toSend.size(); i++)
+  int characterIndex   = 0;
+  int additionalStride = 0;
+  for (int i = 0; i < toSend.size() * 2; i += 2)
   {
-    INPUT input        = {};
-    input.type         = INPUT_KEYBOARD;
-    SHORT vk           = VkKeyScanEx(toSend[i], kbl);
+    SHORT vk           = VkKeyScanEx(toSend[characterIndex], kbl);
     bool shiftModifier = vk & 0x100;
     if (shiftModifier) // if shift was held
     {
-      INPUT shift  = {};
-      shift.type   = INPUT_KEYBOARD;
-      shift.ki.wVk = VK_LSHIFT;
-      SendInput(1, &shift, sizeof(INPUT));
+      inputs[i + offset + additionalStride]            = {};
+      inputs[i + offset + additionalStride].type       = INPUT_KEYBOARD;
+      inputs[i + offset + additionalStride].ki.wVk     = VK_LSHIFT;
+      inputs[i + offset + additionalStride].ki.dwFlags = 0;
+      totalPresses++;
+      additionalStride++; // offset our character insert by 1 as a shift must precede it
     }
 
-    // send this character to the keyboard now, after the modifier (if it was needed)
-    input.ki.wVk = vk & 0xFF;
-    SendInput(1, &input, sizeof(INPUT));
-    // NOTE: You NEED to send a KEYUP after the KEYDOWN otherwise Windows eats characters oddly
-    input.ki.dwFlags = KEYEVENTF_KEYUP;
-    SendInput(1, &input, sizeof(INPUT));
+    // KEY DOWN for the character
+    inputs[i + offset + additionalStride]            = {};
+    inputs[i + offset + additionalStride].ki.dwFlags = 0;
+    inputs[i + offset + additionalStride].type       = INPUT_KEYBOARD;
+    inputs[i + offset + additionalStride].ki.wVk     = vk & 0xFF;
+    totalPresses++;
+
+    // KEY UP for the character
+    inputs[i + offset + additionalStride + 1]            = {};
+    inputs[i + offset + additionalStride + 1].type       = INPUT_KEYBOARD;
+    inputs[i + offset + additionalStride + 1].ki.dwFlags = KEYEVENTF_KEYUP;
+    totalPresses++;
 
 
     if (shiftModifier) // release shift if we sent it earlier
     {
-      INPUT shift      = {};
-      shift.type       = INPUT_KEYBOARD;
-      shift.ki.wVk     = VK_LSHIFT;
-      shift.ki.dwFlags = KEYEVENTF_KEYUP;
-      SendInput(1, &shift, sizeof(INPUT));
+      additionalStride++; // now we bump the stride by another one as we have a shift release after
+                          // the character
+      inputs[i + offset + additionalStride + 1]            = {};
+      inputs[i + offset + additionalStride + 1].type       = INPUT_KEYBOARD;
+      inputs[i + offset + additionalStride + 1].ki.wVk     = VK_LSHIFT;
+      inputs[i + offset + additionalStride + 1].ki.dwFlags = KEYEVENTF_KEYUP;
+      totalPresses++;
     }
+
+    characterIndex += 1;
   }
+
+  SendInput(totalPresses, inputs, sizeof(INPUT));
 
   registerKeyboardHook();
 }

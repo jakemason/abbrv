@@ -47,8 +47,8 @@ executable on another machine and all of your abbreviations will be there. You c
 
 ### 5. Does this work while abbrv is minimized?
 
-Yes. As long as you minimize the window (it goes to the system tray area, not taskbar!) it will
-continue to work. Closing the window will disable the expansion functionality.
+Yes. As long as you minimize the window (it goes to the system tray area in the bottom-right -- not the taskbar!)
+it will continue to work. Closing the window will disable the expansion functionality.
 
 ### 6. Can I use this for expanding code snippets in X editor?
 
