@@ -41,7 +41,7 @@
 #define UTIL_COLUMN_SIZE 35.0f
 
 #if WIN32
-#include <tchar.h>
+#include <tchar.h> // provides _T for opening in explorer
 #endif
 
 class Editor
@@ -56,12 +56,37 @@ public:
     ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.0f, 0.0f));
   }
 
-  static void showHelpWindow()
+  static void showFAQ()
   {
-    if (showHelpMenu) { ImGui::OpenPopup("Help"); }
-    if (ImGui::BeginPopupModal("Help", &showHelpMenu, ImGuiWindowFlags_AlwaysAutoResize))
+    if (showHelpMenu) { ImGui::OpenPopup("FAQ"); }
+
+    // Always center this window when appearing
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(ImVec2(600, 350));
+    if (ImGui::BeginPopupModal("FAQ", &showHelpMenu, ImGuiWindowFlags_AlwaysAutoResize))
     {
-      ImGui::Text("All those beautiful files will be deleted.\nThis operation cannot be undone!\n\n");
+      ImGui::TextWrapped("How do I prevent abbreviations from activating when I don't want them to?");
+      ImGui::Spacing();
+      ImGui::TextWrapped(
+          "I suggest starting all of your abbreviations with a unique prefix that you are unlikely to type by mistake. "
+          "For example, I use ';;' as a prefix to all of my abbreviations like so: ';;phone' or ';;apikey'.");
+      ImGui::Separator();
+
+      ImGui::TextWrapped("My abbreviation will not expand! Why not?");
+      ImGui::Spacing();
+      ImGui::TextWrapped(
+          "Make sure that you don't have an illusive space hiding before, or after, the abbreviation. It's most like "
+          "that you've typed 'my_abbreviation ' when you really meant to type 'my_abbreviation'.");
+      ImGui::Separator();
+
+      ImGui::TextWrapped("Can I save my settings across multiple machines?");
+      ImGui::Spacing();
+      ImGui::TextWrapped(
+          "Yes, simply copy the 'config.abbrv' file that found alongside abbrv.exe to the same folder as the "
+          "executable on another machine and all of your abbreviations will be there. You can quickly find the "
+          "'config.abbrv' file by clicking Help -> Open in Explorer.");
+
       ImGui::EndPopup();
     }
   }
@@ -85,7 +110,7 @@ public:
 
       if (ImGui::BeginMenu("Help"))
       {
-        if (ImGui::MenuItem("Getting Started")) { showHelpMenu = true; }
+        if (ImGui::MenuItem("FAQ")) { showHelpMenu = true; }
 #if WIN32
         if (ImGui::MenuItem("Open in Explorer"))
         {
@@ -220,7 +245,7 @@ public:
       if (ImGui::IsItemHovered()) { ImGui::SetTooltip("Add a new abbreviation & expansion pair."); }
     }
 
-    showHelpWindow();
+    showFAQ();
     ImGui::End();
   }
 };

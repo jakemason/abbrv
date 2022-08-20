@@ -106,6 +106,8 @@ void Platform::io(float deltaTime, Input* input)
   ImGuiIO& io = ImGui::GetIO();
   (void)io;
 
+  io.IniFilename = NULL; // disable generation of config file for imgui
+
   if (input->textInputTrigger) { io.AddInputCharactersUTF8(input->textInput.c_str()); }
 
   // have to setup this to read these keys. Not sure why this has to be
