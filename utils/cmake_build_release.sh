@@ -9,5 +9,5 @@ mkdir -p abbrv
 # NOTE: Set our cmake options flags, these are NOT the same as the definitions in
 # C++, despite having the same name. Refer to either CMakeLists.txt for more
 # information.
-cmake -DEDITOR_MODE=OFF -DENABLE_DEBUG=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+cmake -DENABLE_DEBUG=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 (cmake --build . || $SHELL) | tee cgame.txt 

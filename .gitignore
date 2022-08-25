@@ -14,33 +14,31 @@ obj/
 *.exe
 Session.vim
 Session.vim.*
-bin/*.exe
+
 tags
 tags.log
 src.dll
 src_temp.dll
 .vs/
+
+
 config.abbrv # don't save any built configs
+bin/config.abbrv # don't save any built configs
 
 # Don't store any logs, aside from the folder itself
 logs/*
 !logs/.keep
 
 # Debug information we don't want to keep around
+# as well as local config stuff that gets generated
 bin/*.rdbg
 bin/*.exp
 bin/*.lib
 bin/*.ilk
 bin/*.pdb
 bin/*.manifest
-bin/test.sav
-# Do we actually want to share this? Maybe provide
-# a default version?
+bin/*.exe
 bin/imgui.ini
-
-# Don't same screenshots, aside from the folder itself
-screenshots/*
-!screenshots/.keep
 
 # Killing all the junk that CMake produces
 src/.vs
