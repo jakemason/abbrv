@@ -2,9 +2,9 @@
  * abbrv Source Code
  * Copyright (C) 2022 Jake Mason
  *
- * @version 1.0
+ * @version 1.2
  * @author Jake Mason
- * @date 08-19-2022
+ * @date 08-25-2022
  *
  * abbrv is licensed under the Creative Commons
  * Attribution-NonCommercial-ShareAlike 4.0 International License

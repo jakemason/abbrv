@@ -28,18 +28,8 @@ link_directories(./lib)
 add_compile_options(/wd4244 /wd4996 /MP)
 
 #options
-option(EDITOR_MODE "Enables the game engine editor for development" ON)
-option(SDL_RENDERER "Enable the built-in SDL_Renderer (software rendering)" OFF)
 option(OPENGL_RENDERER "Enable the OpenGL renderer" ON)
 option(ENABLE_DEBUG "Enables various debugging outputs and logging" ON)
-
-if(EDITOR_MODE)
-  add_definitions(-DEDITOR_MODE)
-endif()
-
-if(SDL_RENDERER)
-  add_definitions(-DSDL_RENDERER)
-endif()
 
 if(OPENGL_RENDERER)
   add_definitions(-DOPENGL_RENDERER)

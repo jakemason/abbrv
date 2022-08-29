@@ -2,9 +2,9 @@
  * abbrv Source Code
  * Copyright (C) 2022 Jake Mason
  *
- * @version 1.0
+ * @version 1.2
  * @author Jake Mason
- * @date 08-19-2022
+ * @date 08-28-2022
  *
  * abbrv is licensed under the Creative Commons
  * Attribution-NonCommercial-ShareAlike 4.0 International License
@@ -52,7 +52,7 @@ public:
   static void onKeyPress(char pressed);
   static void simulateKeyboardInput(int abbreviationLength, std::string toSend);
 
-  std::string version = "1.0";
+  std::string version = "1.2";
 
   inline static SDL_Window* window;
   SDL_GLContext context;
