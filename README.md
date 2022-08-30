@@ -1,6 +1,6 @@
 ![abbrv logo](./repo/logo_wide.png)
 
-A text expansion solution for Windows that allows the user to auto-expand abbreviations into full ASCII strings.
+A text expansion solution for 64-bit Windows that allows the user to auto-expand abbreviations into full ASCII strings.
 
 ## Usage
 
