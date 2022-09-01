@@ -18,12 +18,17 @@ https://user-images.githubusercontent.com/12981369/185303270-7d0616ec-620b-4568-
 
 ## FAQ
 
-### 1. How do I prevent abbreviations from activating when I don't want them to?
+### 1. I run abbrv.exe and nothing happens! What gives?
+
+As of version 1.3, `abbrv` opens minimized to the system tray by default. You can click it's system
+tray icon to open the window for editing.
+
+### 2. How do I prevent abbreviations from activating when I don't want them to?
 
 I suggest starting all of your abbreviations with a unique prefix that you are unlikely to type by mistake.
 For example, I use ';;' as a prefix to all of my abbreviations like so: ';;phone' or ';;apikey'.
 
-### 2. Are there any universally useful expansions?
+### 3. Are there any universally useful expansions?
 
 These vary widely, but common language shorthands which you can't use in a professional setting are
 good candidates:
@@ -34,23 +39,23 @@ good candidates:
 
 And so on. I _highly_ suggest using a prefix on all of these!
 
-### 3. My abbreviation will not expand! Why not?
+### 4. My abbreviation will not expand! Why not?
 
 Make sure that you don't have an illusive space hiding before, or after, the abbreviation. It's most likely
 that you've typed 'my_abbreviation ' when you really meant to type 'my_abbreviation'.
 
-### 4. Can I save my settings across multiple machines?
+### 5. Can I save my settings across multiple machines?
 
 Yes, simply copy the 'config.abbrv' file that found alongside abbrv.exe to the same folder as the
 executable on another machine and all of your abbreviations will be there. You can quickly find the
 'config.abbrv' file by clicking Help -> Open in Explorer."
 
-### 5. Does this work while abbrv is minimized?
+### 6. Does this work while abbrv is minimized?
 
 Yes. As long as you minimize the window (it goes to the system tray area in the bottom-right -- not the taskbar!)
 it will continue to work. Closing the window will disable the expansion functionality.
 
-### 6. Can I use this for expanding code snippets in X editor?
+### 7. Can I use this for expanding code snippets in X editor?
 
 The likely answer is yes, _but_ you should probably find a better code/snippet expander for programming.
 Most editors these days will have some sort of context-aware expansion features that are far more beneficial

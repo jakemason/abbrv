@@ -52,7 +52,7 @@ public:
   static void onKeyPress(char pressed);
   static void simulateKeyboardInput(int abbreviationLength, std::string toSend);
 
-  std::string version = "1.2";
+  std::string version = "1.3";
 
   inline static SDL_Window* window;
   SDL_GLContext context;

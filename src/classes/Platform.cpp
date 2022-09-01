@@ -220,7 +220,7 @@ void Platform::init(const char* title, int width, int height)
   }
 
   window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
-                            SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+                            SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_MINIMIZED);
 #if WIN32
   SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
   WM_TASKBARCREATED = RegisterWindowMessageW(L"TaskbarCreated");
@@ -254,6 +254,12 @@ void Platform::init(const char* title, int width, int height)
   SDL_SetWindowTitle(window, fullTitle.c_str());
 
   SDL_SetWindowMinimumSize(window, width, height);
+
+#if WIN32
+  SDL_SysWMinfo info;
+  SDL_VERSION(&info.version);
+  if (SDL_GetWindowWMInfo(window, &info)) { ShowWindow(info.info.win.window, SW_HIDE); }
+#endif
 }
 
 void Platform::initRenderer()
