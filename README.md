@@ -62,7 +62,7 @@ Most editors these days will have some sort of context-aware expansion features 
 than abbrv is in that regard. The purpose of abbrv is to allow simple text expansion across _any_ application
 or interface.
 
-### 7. Does this support Unicode?
+### 8. Does this support Unicode?
 
 No, not currently. Unfortunately, supporting Unicode is a much larger problem and currently out of scope.
 
