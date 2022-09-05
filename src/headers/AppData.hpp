@@ -203,9 +203,18 @@ public:
     resetEntries();
   }
 
+  void backupConfigFile()
+  {
+    std::ifstream src(SAVE_FILE_NAME, std::ios::binary);
+    std::ofstream dst(SAVE_FILE_NAME ".backup", std::ios::binary);
+
+    dst << src.rdbuf();
+  }
+
   void updateSaveFileFormat()
   {
     WARN("Updating to the new Save File Format");
+    backupConfigFile();
     std::ifstream in;
     in.open("./" SAVE_FILE_NAME);
     if (!in)
@@ -220,6 +229,8 @@ public:
     bool isMultiline   = false;
     bool isHiddenField = false;
 
+    int abortCounter = 0;
+    int abortLimit   = 10000;
     while (!in.eof())
     {
       in >> isMultiline;
@@ -235,6 +246,14 @@ public:
         strcpy(toAdd.abbreviation, abbreviation.c_str());
         strcpy(toAdd.expandsTo, expandsTo.c_str());
         entries.push_back(toAdd);
+      }
+
+      abortCounter++;
+      if (abortCounter > abortLimit)
+      {
+        ERR("Failure to parse and update Save File. Aborting update and loading clean slate.");
+        entries = {};
+        return;
       }
     }
     in.close();
