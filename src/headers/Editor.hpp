@@ -132,7 +132,7 @@ public:
       ImGui::EndMainMenuBar();
     }
 
-    int columns = 4; // abbreviation, expansion, multi-line/single-line toggle, delete entry
+    int columns = 5; // abbreviation, expansion, multi-line/single-line toggle, delete entry
     bool open   = true;
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(ImVec2(screenWidth, screenHeight));
@@ -146,6 +146,7 @@ public:
 
       ImGui::TableSetupColumn("Abbreviation");
       ImGui::TableSetupColumn("Expands To");
+      ImGui::TableSetupColumn("##hidden", ImGuiTableColumnFlags_WidthFixed, UTIL_COLUMN_SIZE);
       ImGui::TableSetupColumn("##lines", ImGuiTableColumnFlags_WidthFixed, UTIL_COLUMN_SIZE);
       ImGui::TableSetupColumn("##delete", ImGuiTableColumnFlags_WidthFixed, UTIL_COLUMN_SIZE);
       ImGui::TableHeadersRow();
@@ -178,10 +179,12 @@ public:
           ImGui::TableSetColumnIndex(column);
           // ImGui::Text("Row %d Column %d", row, column);
           ImGui::PushID(row * columns + column); // assign unique id
+          ImGuiInputTextFlags flags = 0;
+          if (data->entries[row].isHiddenField) flags = ImGuiInputTextFlags_Password;
           if (data->entries[row].isMultiline)
           {
             if (ImGui::InputTextMultiline("##v", data->entries[row].expandsTo,
-                                          IM_ARRAYSIZE(data->entries[row].expandsTo)))
+                                          IM_ARRAYSIZE(data->entries[row].expandsTo), ImVec2(0, 0), flags))
             {
               data->saveToFile();
             }
@@ -189,7 +192,8 @@ public:
           }
           else
           {
-            if (ImGui::InputText("##v", data->entries[row].expandsTo, IM_ARRAYSIZE(data->entries[row].expandsTo)))
+            if (ImGui::InputText("##v", data->entries[row].expandsTo, IM_ARRAYSIZE(data->entries[row].expandsTo),
+                                 flags))
             {
               data->saveToFile();
             }
@@ -207,10 +211,36 @@ public:
           ImGui::PushID(row * columns + column); // assign unique id
 
 
+          std::string icon = data->entries[row].isHiddenField ? ICON_FA_EYE_SLASH : ICON_FA_EYE;
+          if (ImGui::Button(icon.c_str(), button_size))
+          {
+            data->entries[row].isHiddenField = !data->entries[row].isHiddenField;
+            data->saveToFile();
+          }
+          if (ImGui::IsItemHovered())
+          {
+            std::string text = data->entries[row].isHiddenField ?
+                                   "Display the entry in plain text, readable by anyone." :
+                                   "Hide the contents of this field until this button is toggled again.";
+            ImGui::SetTooltip("%s", text.c_str());
+          }
+          ImGui::PopID();
+        }
+
+        { // multi/single-line toggle column
+          column = 3;
+
+          ImVec2 button_size(UTIL_COLUMN_SIZE, ImGui::GetFontSize() * 2.0f);
+          ImGui::TableSetColumnIndex(column);
+          // ImGui::Text("Row %d Column %d", row, column);
+          ImGui::PushID(row * columns + column); // assign unique id
+
+
           std::string icon = data->entries[row].isMultiline ? ICON_FA_MINUS : ICON_FA_BARS;
           if (ImGui::Button(icon.c_str(), button_size))
           {
             data->entries[row].isMultiline = !data->entries[row].isMultiline;
+            data->saveToFile();
           }
           if (ImGui::IsItemHovered())
           {
@@ -222,7 +252,7 @@ public:
         }
 
         { // delete columns
-          column = 3;
+          column = 4;
           ImGui::TableSetColumnIndex(column);
           // ImGui::Text("Row %d Column %d", row, column);
           ImGui::PushID(row * columns + column); // assign unique id

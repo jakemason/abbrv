@@ -20,19 +20,16 @@
 #define EXPAND_MAX_SIZE       4096
 
 // we allow all ASCII entries
-#define ALPHABET_SIZE 128
-
-#define SAVE_FILE_NAME "config.abbrv"
-
-// we need to use an unusual delimiter in the save format so that we can safely
-// accept _almost_ any input from the user in their abbreviations or expansions
-#define DELIMITER '\x1f'
+#define ALPHABET_SIZE           128
+#define ABBRV_SAVE_FILE_VERSION "ABBRV_SAVE_1_0"
+#define SAVE_FILE_NAME          "config.abbrv"
 
 #include <fstream>
 #include <string>
 #include <vector>
 
 #include "Debug.hpp"
+#include "Serialization.hpp"
 #include "imgui.h"
 
 struct Abbreviation
@@ -40,6 +37,7 @@ struct Abbreviation
   char abbreviation[ABBREVIATION_MAX_SIZE];
   char expandsTo[EXPAND_MAX_SIZE];
   bool isMultiline;
+  bool isHiddenField = false;
 };
 
 struct TrieNode
@@ -163,34 +161,108 @@ public:
 
   void readSaveFile()
   {
-    std::ifstream file;
-    file.open("./" SAVE_FILE_NAME);
-    if (!file)
+    std::ifstream in;
+    in.open("./" SAVE_FILE_NAME);
+    if (!in)
     {
-      ERR("Failed to open the config file %s", SAVE_FILE_NAME);
+      ERR("Failed to open the config in %s", SAVE_FILE_NAME);
       resetEntries();
       return;
     }
+
+    std::string line;
+    std::string label;
+    std::string value;
+    getline(in >> std::ws, line, DELIMITER);
+    if (line != "ABBRV_SAVE_FILE_VERSION:" ABBRV_SAVE_FILE_VERSION) { updateSaveFileFormat(); }
+
+    int savedEntriesCount = 0;
+    getline(in >> std::ws, line, DELIMITER);
+    GET_LABEL_AND_VALUE;
+    savedEntriesCount = atoi(value.c_str());
+
+    for (int i = 0; i < savedEntriesCount; i++)
+    {
+      DEBUG("LOOP");
+      entries.push_back({});
+      while (line != "}")
+      {
+        getline(in >> std::ws, line, DELIMITER);
+        DEBUG("Reading line [%s]", line.c_str());
+        GET_LABEL_AND_VALUE;
+        DEBUG("Read label [%s] with value [%s]", label.c_str(), value.c_str());
+        if (0) {}
+        READ(entries[i].isHiddenField)
+        READ(entries[i].isMultiline)
+        READ_CHAR_ARRAY(entries[i].abbreviation)
+        READ_CHAR_ARRAY(entries[i].expandsTo)
+      }
+      getline(in >> std::ws, line, DELIMITER);
+    }
+
+    resetEntries();
+  }
+
+  void updateSaveFileFormat()
+  {
+    WARN("Updating to the new Save File Format");
+    std::ifstream in;
+    in.open("./" SAVE_FILE_NAME);
+    if (!in)
+    {
+      ERR("Failed to open the config in %s", SAVE_FILE_NAME);
+      resetEntries();
+      return;
+    }
+
     std::string abbreviation;
     std::string expandsTo;
-    bool isMultiline;
-    while (!file.eof())
+    bool isMultiline   = false;
+    bool isHiddenField = false;
+
+    while (!in.eof())
     {
-      file >> isMultiline;
-      // file >> std::ws -- removes any whitespace from the line before processing
-      std::getline(file >> std::ws, abbreviation, DELIMITER);
+      in >> isMultiline;
+      // in >> std::ws -- removes any whitespace from the line before processing
+      std::getline(in >> std::ws, abbreviation, DELIMITER);
       DEBUG("Abbreviation: [%s]", abbreviation.c_str());
-      std::getline(file, expandsTo, DELIMITER);
+      std::getline(in, expandsTo, DELIMITER);
       if (abbreviation != "")
       {
         Abbreviation toAdd;
-        toAdd.isMultiline = isMultiline;
+        toAdd.isMultiline   = isMultiline;
+        toAdd.isHiddenField = isHiddenField;
         strcpy(toAdd.abbreviation, abbreviation.c_str());
         strcpy(toAdd.expandsTo, expandsTo.c_str());
         entries.push_back(toAdd);
       }
     }
+    in.close();
 
+    resetEntries();
+
+
+    std::ofstream out;
+    out.open("./" SAVE_FILE_NAME);
+    if (!out)
+    {
+      ERR("Failed to open the config file %s", SAVE_FILE_NAME);
+      return;
+    }
+    WRITE(ABBRV_SAVE_FILE_VERSION);
+    WRITE(entries.size());
+
+    for (int i = 0; i < entries.size(); i++)
+    {
+      START_WRITE("{");
+      WRITE(entries[i].isHiddenField);
+      WRITE(entries[i].isMultiline);
+      WRITE(entries[i].abbreviation);
+      WRITE(entries[i].expandsTo);
+      END_WRITE("}");
+    }
+
+    DEBUG("Saved our entries.");
     resetEntries();
   }
 
@@ -207,17 +279,25 @@ public:
 
   void saveToFile()
   {
-    std::ofstream file;
-    file.open("./" SAVE_FILE_NAME);
-    if (!file)
+    std::ofstream out;
+    out.open("./" SAVE_FILE_NAME);
+    if (!out)
     {
       ERR("Failed to open the config file %s", SAVE_FILE_NAME);
       return;
     }
+
+    WRITE(ABBRV_SAVE_FILE_VERSION);
+    WRITE(entries.size());
+
     for (int i = 0; i < entries.size(); i++)
     {
-      file << entries[i].isMultiline << " " << entries[i].abbreviation << DELIMITER << entries[i].expandsTo;
-      if (i != entries.size() - 1) { file << DELIMITER; }
+      START_WRITE("{");
+      WRITE(entries[i].isHiddenField);
+      WRITE(entries[i].isMultiline);
+      WRITE(entries[i].abbreviation);
+      WRITE(entries[i].expandsTo);
+      END_WRITE("}");
     }
 
     DEBUG("Saved our entries.");
