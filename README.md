@@ -41,7 +41,7 @@ And so on. I _highly_ suggest using a prefix on all of these!
 
 ### 4. My abbreviation will not expand! Why not?
 
-Make sure that you don't have an illusive space hiding before, or after, the abbreviation. It's most likely
+Make sure that you don't have an elusive space hiding before, or after, the abbreviation. It's most likely
 that you've typed 'my_abbreviation ' when you really meant to type 'my_abbreviation'.
 
 ### 5. Can I save my settings across multiple machines?
