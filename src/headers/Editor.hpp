@@ -31,12 +31,12 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_internal.h"
 
-// dictates the size of the columns for the trash and expansion icons (columns 3 & 4)
-//           1                   2             3   4
-// \-------------------\---------------------\---\---\
-// \                   \                     \   \   \
-// \                   \                     \   \   \
-// \                   \                     \   \   \
+// dictates the size of the columns for the trash and expansion icons (columns 3, 4, & 5)
+//           1                   2             3   4   5
+// |-------------------|---------------------|---|---|---|
+// |                   |                     |   |   |   |
+// |                   |                     |   |   |   |
+// |                   |                     |   |   |   |
 //
 #define UTIL_COLUMN_SIZE 35.0f
 
@@ -53,7 +53,8 @@ public:
   {
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(4, 4));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(9.0f, 9.0f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor(30, 30, 30));
   }
 
   static void showFAQ()
