@@ -44,7 +44,7 @@ void Platform::onKeyPress(char pressed)
   if (toSend != nullptr)
   {
     std::string s(toSend->expandsTo);
-    simulateKeyboardInput(strlen(toSend->abbreviation), s);
+    simulateKeyboardInput((int)strlen(toSend->abbreviation), s);
   }
 }
 
