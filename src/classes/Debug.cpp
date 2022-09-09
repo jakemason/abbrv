@@ -47,7 +47,7 @@
   va_list args;                                                                                                        \
   va_start(args, format);                                                                                              \
                                                                                                                        \
-  char buffer[256]{};                                                                                                  \
+  char buffer[8192]{};                                                                                                 \
   vsprintf(buffer, with_newline.c_str(), args);                                                                        \
   std::string currentLine = buffer;                                                                                    \
                                                                                                                        \
