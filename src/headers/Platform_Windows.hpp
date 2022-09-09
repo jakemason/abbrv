@@ -116,8 +116,13 @@ void Platform::simulateKeyboardInput(int abbreviationLength, std::string toSend)
   UnhookWindowsHookEx(keyboardHook);
   HKL kbl = GetKeyboardLayout(0);
 
-  INPUT inputs[2 * ABBREVIATION_MAX_SIZE + 4 * EXPAND_MAX_SIZE] = {};
-  int inputCount = 0;
+
+  // key up + key down & room for shift up+ shift down
+  const int maximumPossibleSendInputs = 4 * EXPAND_MAX_SIZE;
+  const int backSpacesRequired        = 2 * ABBREVIATION_MAX_SIZE; // key up + key down for each
+
+  INPUT inputs[backSpacesRequired + maximumPossibleSendInputs] = {};
+  int inputCount                                               = 0;
 
   // send a backspace for each character in our abbreviation
   for (int i = 0; i < abbreviationLength; i++)
