@@ -398,9 +398,9 @@ void Platform::handleOSEvents(Input* input)
       }
       case SDL_KEYDOWN:
       {
-        switch (event.key.keysym.sym)
+        //switch (event.key.keysym.sym)
         {
-          default:
+          //default:
           {
             int scanCode = event.key.keysym.scancode;
 
