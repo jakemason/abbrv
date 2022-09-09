@@ -116,74 +116,62 @@ void Platform::simulateKeyboardInput(int abbreviationLength, std::string toSend)
   UnhookWindowsHookEx(keyboardHook);
   HKL kbl = GetKeyboardLayout(0);
 
-
-  // TODO: Max limit here?
-  INPUT inputs[4096] = {};
-
-  int totalPresses = 0;
+  INPUT inputs[2 * ABBREVIATION_MAX_SIZE + 4 * EXPAND_MAX_SIZE] = {};
+  int inputCount = 0;
 
   // send a backspace for each character in our abbreviation
-  for (int i = 0; i < abbreviationLength * 2; i += 2)
+  for (int i = 0; i < abbreviationLength; i++)
   {
-    inputs[i]            = {};
-    inputs[i].type       = INPUT_KEYBOARD;
-    inputs[i].ki.wVk     = VK_BACK;
-    inputs[i].ki.dwFlags = 0;
+    inputs[inputCount]            = {};
+    inputs[inputCount].type       = INPUT_KEYBOARD;
+    inputs[inputCount].ki.wVk     = VK_BACK;
+    inputs[inputCount].ki.dwFlags = 0;
+    inputCount += 1;
 
-    inputs[i + 1]            = {};
-    inputs[i + 1].type       = INPUT_KEYBOARD;
-    inputs[i + 1].ki.wVk     = VK_BACK;
-    inputs[i + 1].ki.dwFlags = KEYEVENTF_KEYUP;
-    totalPresses += 2;
+    inputs[inputCount]            = {};
+    inputs[inputCount].type       = INPUT_KEYBOARD;
+    inputs[inputCount].ki.wVk     = VK_BACK;
+    inputs[inputCount].ki.dwFlags = KEYEVENTF_KEYUP;
+    inputCount += 1;
   }
 
-  int offset = abbreviationLength * 2;
-
-  int characterIndex   = 0;
-  int additionalStride = 0;
-  for (int i = 0; i < toSend.size() * 2; i += 2)
+  for (int characterIndex = 0; characterIndex < toSend.size(); characterIndex++)
   {
     SHORT vk           = VkKeyScanEx(toSend[characterIndex], kbl);
     bool shiftModifier = vk & 0x100;
     if (shiftModifier) // if shift was held
     {
-      inputs[i + offset + additionalStride]            = {};
-      inputs[i + offset + additionalStride].type       = INPUT_KEYBOARD;
-      inputs[i + offset + additionalStride].ki.wVk     = VK_LSHIFT;
-      inputs[i + offset + additionalStride].ki.dwFlags = 0;
-      totalPresses++;
-      additionalStride++; // offset our character insert by 1 as a shift must precede it
+      inputs[inputCount]            = {};
+      inputs[inputCount].type       = INPUT_KEYBOARD;
+      inputs[inputCount].ki.wVk     = VK_LSHIFT;
+      inputs[inputCount].ki.dwFlags = 0;
+      inputCount++;
     }
 
     // KEY DOWN for the character
-    inputs[i + offset + additionalStride]            = {};
-    inputs[i + offset + additionalStride].ki.dwFlags = 0;
-    inputs[i + offset + additionalStride].type       = INPUT_KEYBOARD;
-    inputs[i + offset + additionalStride].ki.wVk     = vk & 0xFF;
-    totalPresses++;
+    inputs[inputCount]            = {};
+    inputs[inputCount].ki.dwFlags = 0;
+    inputs[inputCount].type       = INPUT_KEYBOARD;
+    inputs[inputCount].ki.wVk     = vk & 0xFF;
+    inputCount++;
 
     // KEY UP for the character
-    inputs[i + offset + additionalStride + 1]            = {};
-    inputs[i + offset + additionalStride + 1].type       = INPUT_KEYBOARD;
-    inputs[i + offset + additionalStride + 1].ki.dwFlags = KEYEVENTF_KEYUP;
-    totalPresses++;
-
+    inputs[inputCount]            = {};
+    inputs[inputCount].type       = INPUT_KEYBOARD;
+    inputs[inputCount].ki.dwFlags = KEYEVENTF_KEYUP;
+    inputCount++;
 
     if (shiftModifier) // release shift if we sent it earlier
     {
-      additionalStride++; // now we bump the stride by another one as we have a shift release after
-                          // the character
-      inputs[i + offset + additionalStride + 1]            = {};
-      inputs[i + offset + additionalStride + 1].type       = INPUT_KEYBOARD;
-      inputs[i + offset + additionalStride + 1].ki.wVk     = VK_LSHIFT;
-      inputs[i + offset + additionalStride + 1].ki.dwFlags = KEYEVENTF_KEYUP;
-      totalPresses++;
+      inputs[inputCount]            = {};
+      inputs[inputCount].type       = INPUT_KEYBOARD;
+      inputs[inputCount].ki.wVk     = VK_LSHIFT;
+      inputs[inputCount].ki.dwFlags = KEYEVENTF_KEYUP;
+      inputCount++;
     }
-
-    characterIndex += 1;
   }
 
-  SendInput(totalPresses, inputs, sizeof(INPUT));
+  SendInput(inputCount, inputs, sizeof(INPUT));
 
   registerKeyboardHook();
 }
