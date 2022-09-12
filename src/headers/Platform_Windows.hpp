@@ -19,6 +19,8 @@
 #include "Platform.hpp"
 #include "SDL_syswm.h"
 
+#define NEW_LINE_KEY 10
+
 int Platform::isShiftActive() { return GetKeyState(VK_LSHIFT) < 0 || GetKeyState(VK_RSHIFT) < 0; }
 
 int Platform::isCapsLockActive() { return (GetKeyState(VK_CAPITAL) & 1) == 1; }
@@ -144,6 +146,7 @@ void Platform::simulateKeyboardInput(int abbreviationLength, std::string toSend)
   {
     SHORT vk           = VkKeyScanEx(toSend[characterIndex], kbl);
     bool shiftModifier = vk & 0x100;
+    if ((int)toSend[characterIndex] == NEW_LINE_KEY) { shiftModifier = true; }
     if (shiftModifier) // if shift was held
     {
       inputs[inputCount]            = {};

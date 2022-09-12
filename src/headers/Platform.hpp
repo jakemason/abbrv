@@ -1,4 +1,4 @@
-/**
+/*
  * abbrv Source Code
  * Copyright (C) 2022 Jake Mason
  *
@@ -11,6 +11,12 @@
  *
  * See LICENSE.txt for more information
  **/
+
+/*
+ * TODO: MacOSX implementation threads / ideas
+ * https://stackoverflow.com/questions/10711095/how-do-i-keep-a-key-pressed-using-cgeventpost-in-c-on-osx
+ */
+
 
 #ifndef PLATFORM_HPP
 #define PLATFORM_HPP
