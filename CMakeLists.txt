@@ -38,7 +38,14 @@ endif()
 if(ENABLE_DEBUG)
   add_definitions(-DDEBUG_MODE)
 else()
-  add_link_options(/LTCG) # Suggested when using "/GL"
+  # /DEBUG /INCREMENTAL:NO /OPT:REF /OPT:ICF 
+  # (generate PDB, disable incremental linking, remove unreferenced sections, merge identical sections).
+  #
+  # /LTCG
+  # Suggested when using "/GL"
+  add_link_options(/LTCG /DEBUG /OPT:REF /OPT:ICF)
+
+
   add_compile_options(/O2 /GL) #optimization
   # Not sure where these flags are getting added, but they conflict
   # with /O2 so they get stripped here.
@@ -46,7 +53,7 @@ else()
   RemoveCXXFlag("/Od")
   RemoveCXXFlag("/MD")
 
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT /Zi")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ./abbrv)

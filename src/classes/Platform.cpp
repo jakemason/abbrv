@@ -100,6 +100,10 @@ void Platform::init()
   ImGui_ImplSDL2_InitForOpenGL(window, context);
   ImGui_ImplOpenGL3_Init("#version 150");
 #endif
+
+#if WIN32
+  SetUnhandledExceptionFilter(unhandledHandler);
+#endif
 }
 void Platform::io(float deltaTime, Input* input)
 {
@@ -375,14 +379,8 @@ void Platform::handleOSEvents(Input* input)
       case SDL_MOUSEBUTTONUP:
       {
         if (event.button.button == SDL_BUTTON_LEFT) { input->leftClickHeld = false; }
-        else if (event.button.button == SDL_BUTTON_MIDDLE)
-        {
-          input->middleClickHeld = false;
-        }
-        else
-        {
-          input->rightClickHeld = false;
-        }
+        else if (event.button.button == SDL_BUTTON_MIDDLE) { input->middleClickHeld = false; }
+        else { input->rightClickHeld = false; }
         break;
       }
       case SDL_QUIT:
@@ -398,9 +396,9 @@ void Platform::handleOSEvents(Input* input)
       }
       case SDL_KEYDOWN:
       {
-        //switch (event.key.keysym.sym)
+        // switch (event.key.keysym.sym)
         {
-          //default:
+          // default:
           {
             int scanCode = event.key.keysym.scancode;
 

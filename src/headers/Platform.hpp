@@ -73,6 +73,7 @@ public:
   static UINT WM_TASKBARCREATED;
   static void addTrayIcon(SDL_Window* window);
   static void removeTrayIcon(SDL_Window* window);
+  static LONG WINAPI unhandledHandler(struct _EXCEPTION_POINTERS* apExceptionInfo);
 #endif
 };
 
